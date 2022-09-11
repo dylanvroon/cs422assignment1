@@ -4,4 +4,17 @@ Run in qemu: make qemu / make qemu-nox
 Debug with gdb: make qemu-gdb / make qemu-nox-gdb
                 (in another terminal) gdb
 
+Collaborators: Evan Schott, Dylan Vroon
 
+Question A:
+1. At what point does the processor start executing 32-bit code? What exactly causes the switch from 16- to 32-bit mode?
+The processor starts executing 32-bit code at 0x7e74 in switch_prot where the instruction ljmp $PROT_MODE_CSEG, $protcseg is called. This instruction causes the switch.
+
+2. What is the last instruction of the boot loader executed, and what is the first instruction of the kernel it just loaded?
+The last instruction that the boot loader executed is calling the function parse_e820, a function that detects the physical memory mapping information.
+The first instruction of the kernel is to call start the kernel and initialize it. (init_kernel)
+
+3. Where is the first instruction of the kernel?
+The first instruction of the kernel is located at 0x1023f0
+
+4. How does the boot loader decide how many sectors it must read in order to fetch the entire kernel from disk? Where does it find this information?
