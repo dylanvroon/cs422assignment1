@@ -18,3 +18,24 @@ The first instruction of the kernel is to call start the kernel and initialize i
 The first instruction of the kernel is located at 0x1023f0
 
 4. How does the boot loader decide how many sectors it must read in order to fetch the entire kernel from disk? Where does it find this information?
+It extracts it from the ELFHDR (ELF header) located at 0x20000. More specifically, the e_phnum entry of the ELFHDR struct specifies how many program segments must be extracted using readsection. Also note that readsection can read multiple sectors at once, depending on how large each program segment is. 
+
+
+Question A
+
+1. At what point does the processor start executing 32-bit code? What exactly causes the switch from 16- to 32-bit mode?
+At the following line, the processor switches into protected mode: 0x7e74 <switch_prot+15>  ljmp   $0x8,$0x7e79
+	- Initally the processor is in real mode which is 16-bit, but once it switches to protected mode its in 32-bit. 
+	- The use of type "uint32_t" in the boot/boot1/boot1main.c file ensures 32-bit mode. 
+
+2. What is the last instruction of the boot loader executed, and what is the first instruction of the kernel it just loaded?
+Last instruction of boot loader: 0x8f26 <exec_kernel+14> jmp *%edx
+	- Last instruction is "jmp *%edx" which jumps to the address register %edx is pointing to. 
+First instruction of kernel: 0x1023f0 <start> cli 
+	- First instruction is "cli" which clears the interrupt flag. 
+
+3. Where is the first instruction of the kernel?
+The first instruction of the kernel is at 0x1023f0. This can be found using "objdump -f obj/kern/kernel" to find the entry point of the kernel program. 
+
+4. How does the boot loader decide how many sectors it must read in order to fetch the entire kernel from disk? Where does it find this information?
+It extracts it from the ELFHDR (ELF header) located at 0x20000. More specifically, the e_phnum entry of the ELFHDR struct specifies how many program segments must be extracted using readsection. Also note that readsection can read multiple sectors at once, depending on how large each program segment is. 
