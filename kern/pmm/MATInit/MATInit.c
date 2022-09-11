@@ -21,6 +21,8 @@ void pmem_init(unsigned int mbi_addr)
 {
     unsigned int nps;
 
+    unsigned int highest_phy_address;
+    unsigned int last_index;
     // TODO: Define your local variables here.
 
     // Calls the lower layer initialization primitive.
@@ -34,6 +36,11 @@ void pmem_init(unsigned int mbi_addr)
      *       divided by the page size.
      */
     // TODO
+
+    last_index = get_size() - 1;
+    highest_phy_address = get_mms(last_index) + get_mml(last_index);
+
+    nps = highest_phy_address/PAGESIZE;
 
     set_nps(nps);  // Setting the value computed above to NUM_PAGES.
 
