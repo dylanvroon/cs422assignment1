@@ -23,7 +23,19 @@
  */
 unsigned int palloc()
 {
-    // TODO
+    /* 
+    Naive:
+    - Iterate from [VM_USERLO, VM_USERHI) until find first free one
+    - Set allocation
+    - Return index
+
+    Optimized:
+    - Store last index got to when scanning? Then when at end go back to beginning. Or store like data structure of free ones?
+
+
+    */
+
+
     return 0;
 }
 
