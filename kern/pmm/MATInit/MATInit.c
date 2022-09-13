@@ -120,6 +120,8 @@ void pmem_init(unsigned int mbi_addr)
                 pmm_table_index++;
         }
 
+        at_set_perm(page_index, 0);
+
 
         /*
         going to have to recalculate:
