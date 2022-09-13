@@ -21,6 +21,8 @@
  * 2. Optimize the code using memoization so that you do not have to
  *    scan the allocation table from scratch every time.
  */
+
+unsigned int prev_pi = VM_USERLO_PI;
 unsigned int palloc()
 {
     /* 
@@ -28,13 +30,28 @@ unsigned int palloc()
     - Iterate from [VM_USERLO, VM_USERHI) until find first free one
     - Set allocation
     - Return index
+    
 
     Optimized:
     - Store last index got to when scanning? Then when at end go back to beginning. Or store like data structure of free ones?
 
 
     */
-
+    for (unsigned int pi = prev_pi; pi < VM_USERHI_PI; pi++) {
+        if (at_is_allocated(pi) == 0) {
+            at_set_allocated(pi, 1);
+            prev_pi = pi;
+            return pi;
+        }
+    }
+    for (unsigned int pi = VM_USERLO_PI; pi < prev_pi; pi++) {
+        if (at_is_allocated(pi) == 0) {
+            at_set_allocated(pi, 1);
+            prev_pi = pi;
+            return pi;
+        }
+    }
+    prev_pi = VM_USERLO_PI;
 
     return 0;
 }
@@ -50,4 +67,5 @@ unsigned int palloc()
 void pfree(unsigned int pfree_index)
 {
     // TODO
+    at_set_allocated(pfree_index, 0);
 }
