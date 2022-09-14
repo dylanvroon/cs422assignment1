@@ -70,39 +70,29 @@ void pmem_init(unsigned int mbi_addr)
         at_set_perm(page_index, 1);
     }
 
-    // [VM_USERLO, VM_USERHI) set 2 ONLY IF the entire page falls into one of the ranges in the memory map table with the permission marked as usable, else 0.
-    unsigned int pmm_table_index = 0; 
-    unsigned int cur_page_start;
-    unsigned int cur_page_end;
+    // Blanket cover everything with perm 0, then fill in holes later
     for (; page_index < VM_USERHI_PI; page_index++) {
-
-        cur_page_start = page_index * PAGESIZE;
-        cur_page_end = (page_index + 1) * PAGESIZE - 1;
-        
-        // Catch the table index up with the page index
-        while (pmm_table_index < pmm_table_length && (get_mms(pmm_table_index) + get_mml(pmm_table_index)) < cur_page_start) { 
-            pmm_table_index++;
-        }  
-
-        // Set everything to BIOS if table finished 
-        if (pmm_table_index >= pmm_table_length) {
-            for (; page_index < VM_USERHI_PI; page_index++) {
-                at_set_perm(page_index, 0);
-            }
-            break; 
-        }
-
-        // Check if page contained in accessible memory segment
-        unsigned int cur_table_start = get_mms(pmm_table_index);
-        unsigned int cur_table_end = cur_table_start + + get_mml(pmm_table_index);
-        if (cur_table_start <= cur_page_start && is_usable(pmm_table_index) && cur_table_end >= cur_page_end) {
-            at_set_perm(page_index, 2);
-        }
-        else {
-             at_set_perm(page_index, 0);
-        }
+        at_set_perm(page_index, 0);
     }
 
+    // Iterate through pmm table to fill 
+    unsigned int range_start;
+    unsigned int range_end;
+    unsigned int potential_page_start;
+    for (unsigned int pmm_table_index = 0; pmm_table_index < pmm_table_length; pmm_table_index++) {
+        if (is_usable(pmm_table_index)) {
+            range_start = get_mms(pmm_table_index);
+            range_end = range_start + get_mml(pmm_table_index);
+            potential_page_start = range_start/PAGESIZE + ((range_start % PAGESIZE) != 0); // Ceiling so that don't deal with partial pages
+
+            // Keep looping until page index out of bounds, or page not contained in range 
+            while (potential_page_start >= VM_USERLO_PI && potential_page_start < VM_USERHI_PI && potential_page_start < pmm_table_length && potential_page_start * PAGESIZE <= range_end - 1) {
+                at_set_perm(potential_page_start, 2);
+                potential_page_start++;
+            }
+        }
+    }
+    
     // VM_USERHI_PI to NUM_PAGES - 1 are reserved by the kernel, so set permissions to 1 
     for (;page_index < nps - 1; page_index++) {
         at_set_perm(page_index, 1);
