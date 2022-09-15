@@ -71,30 +71,32 @@ void pmem_init(unsigned int mbi_addr)
     }
 
     // Blanket cover everything with perm 0, then fill in holes later
-    for (; page_index < VM_USERHI_PI; page_index++) {
+    for (;page_index < VM_USERHI_PI; page_index++) {
         at_set_perm(page_index, 0);
     }
 
     // Iterate through pmm table to fill 
-    unsigned int range_start;
-    unsigned int range_end;
-    unsigned int potential_page_start;
+    unsigned int range_start, range_end, potential_page_start;
     for (unsigned int pmm_table_index = 0; pmm_table_index < pmm_table_length; pmm_table_index++) {
         if (is_usable(pmm_table_index)) {
             range_start = get_mms(pmm_table_index);
             range_end = range_start + get_mml(pmm_table_index);
             potential_page_start = range_start/PAGESIZE + ((range_start % PAGESIZE) != 0); // Ceiling so that don't deal with partial pages
 
-            // Keep looping until page index out of bounds, or page not contained in range 
-            while (potential_page_start >= VM_USERLO_PI && potential_page_start < VM_USERHI_PI && potential_page_start < nps && potential_page_start * PAGESIZE <= range_end - 1) {
-                at_set_perm(potential_page_start, 2);
+            // Loop through all full pages contained in current segment
+            while ((potential_page_start < nps - 1) && (((potential_page_start + 1) * PAGESIZE) <= range_end)) {
+
+                // Only consider pages in proper range
+                if ((potential_page_start >= VM_USERLO_PI) && (potential_page_start < VM_USERHI_PI)) {
+                    at_set_perm(potential_page_start, 2);
+                }
                 potential_page_start++;
             }
         }
     }
     
     // VM_USERHI_PI to NUM_PAGES - 1 are reserved by the kernel, so set permissions to 1 
-    for (;page_index < nps - 1; page_index++) {
-        at_set_perm(page_index, 1);
+    for (page_index = VM_USERHI_PI; page_index < nps - 1; page_index++) {
+        at_set_perm(page_index, 1); 
     }
 }

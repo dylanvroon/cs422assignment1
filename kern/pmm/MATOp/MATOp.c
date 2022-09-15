@@ -6,6 +6,7 @@
 #define VM_USERHI    0xF0000000
 #define VM_USERLO_PI (VM_USERLO / PAGESIZE)
 #define VM_USERHI_PI (VM_USERHI / PAGESIZE)
+#define CACHE_LEN 5
 
 /**
  * Allocate a physical page.
@@ -23,35 +24,37 @@
  */
 
 unsigned int prev_pi = VM_USERLO_PI;
+int cache[] = {-1,-1,-1,-1,-1};
 unsigned int palloc()
 {
-    /* 
-    Naive:
-    - Iterate from [VM_USERLO, VM_USERHI) until find first free one
-    - Set allocation
-    - Return index
-    
+    // Check cache
+    for (unsigned int i = 0; i < CACHE_LEN; i++) {
+        if (cache[i] != -1) {
+            unsigned int cache_hit = cache[i];
+            cache[i] = -1;
+            return cache_hit;
+        }
+    }
 
-    Optimized:
-    - Store last index got to when scanning? Then when at end go back to beginning. Or store like data structure of free ones?
-
-
-    */
+    // Start linear scan from previous scan end
     for (unsigned int pi = prev_pi; pi < VM_USERHI_PI; pi++) {
-        if (at_is_allocated(pi) == 0) {
+        if (at_is_allocated(pi) == 0 && at_is_norm(pi) == 1) {
             at_set_allocated(pi, 1);
             prev_pi = pi;
             return pi;
         }
     }
+
+    // If all else fails, redo scan from beginning 
     for (unsigned int pi = VM_USERLO_PI; pi < prev_pi; pi++) {
-        if (at_is_allocated(pi) == 0) {
+        if (at_is_allocated(pi) == 0 && at_is_norm(pi) == 1) {
             at_set_allocated(pi, 1);
             prev_pi = pi;
             return pi;
         }
     }
-    prev_pi = VM_USERLO_PI;
+
+    prev_pi = VM_USERLO_PI; // Save index ended scanning at 
 
     return 0;
 }
@@ -66,6 +69,11 @@ unsigned int palloc()
  */
 void pfree(unsigned int pfree_index)
 {
-    // TODO
+    // Add to cache 
+    for (unsigned int i = 0; i < CACHE_LEN; i++) {
+        if (cache[i] == -1) {
+            cache[i] = pfree_index;
+        }
+    }
     at_set_allocated(pfree_index, 0);
 }
