@@ -106,10 +106,10 @@
 00102d10 T pfree
 00102d80 T MATOp_test1
 00102e90 T MATOp_test_own
-00102f40 T test_MATOp
-00102f60 T __udivdi3
-00103080 T __umoddi3
-001031bf T etext
+00102fe0 T test_MATOp
+00103000 T __udivdi3
+00103120 T __umoddi3
+0010325f T etext
 00107000 d shiftcode
 00107100 d togglecode
 00107200 d normalmap
