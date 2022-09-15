@@ -7,6 +7,7 @@
 #define VM_USERLO_PI (VM_USERLO / PAGESIZE)
 #define VM_USERHI_PI (VM_USERHI / PAGESIZE)
 #define CACHE_LEN 5
+#define UINT_MAX 0xffffffff
 
 /**
  * Allocate a physical page.
@@ -24,14 +25,14 @@
  */
 
 unsigned int prev_pi = VM_USERLO_PI;
-int cache[] = {-1,-1,-1,-1,-1};
+unsigned int cache[] = {UINT_MAX,UINT_MAX,UINT_MAX,UINT_MAX,UINT_MAX};
 unsigned int palloc()
 {
     // Check cache
     for (unsigned int i = 0; i < CACHE_LEN; i++) {
-        if (cache[i] != -1) {
+        if (cache[i] != UINT_MAX) {
             unsigned int cache_hit = cache[i];
-            cache[i] = -1;
+            cache[i] = UINT_MAX;
             return cache_hit;
         }
     }
@@ -40,7 +41,6 @@ unsigned int palloc()
     for (unsigned int pi = prev_pi; pi < VM_USERHI_PI; pi++) {
         if (at_is_allocated(pi) == 0 && at_is_norm(pi) == 1) {
             at_set_allocated(pi, 1);
-            prev_pi = pi;
             return pi;
         }
     }
@@ -71,7 +71,7 @@ void pfree(unsigned int pfree_index)
 {
     // Add to cache 
     for (unsigned int i = 0; i < CACHE_LEN; i++) {
-        if (cache[i] == -1) {
+        if (cache[i] == UINT_MAX) {
             cache[i] = pfree_index;
         }
     }

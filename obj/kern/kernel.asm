@@ -1847,7 +1847,7 @@ Disassembly of section .text:
   1014da:	50                   	push   %eax
   1014db:	ff 75 f4             	push   -0xc(%ebp)
   1014de:	ff 75 f0             	push   -0x10(%ebp)
-  1014e1:	e8 fa 18 00 00       	call   102de0 <__udivdi3>
+  1014e1:	e8 9a 19 00 00       	call   102e80 <__udivdi3>
   1014e6:	83 c4 10             	add    $0x10,%esp
   1014e9:	83 ec 04             	sub    $0x4,%esp
   1014ec:	ff 75 20             	push   0x20(%ebp)
@@ -1877,7 +1877,7 @@ Disassembly of section .text:
   10152f:	51                   	push   %ecx
   101530:	52                   	push   %edx
   101531:	50                   	push   %eax
-  101532:	e8 c9 19 00 00       	call   102f00 <__umoddi3>
+  101532:	e8 69 1a 00 00       	call   102fa0 <__umoddi3>
   101537:	83 c4 10             	add    $0x10,%esp
   10153a:	05 5c 41 10 00       	add    $0x10415c,%eax
   10153f:	0f b6 00             	movzbl (%eax),%eax
@@ -2240,10 +2240,10 @@ Disassembly of section .text:
   101923:	89 e5                	mov    %esp,%ebp
   101925:	83 ec 18             	sub    $0x18,%esp
   101928:	b8 00 a0 10 00       	mov    $0x10a000,%eax
-  10192d:	2d 2c 75 10 00       	sub    $0x10752c,%eax
+  10192d:	2d 40 75 10 00       	sub    $0x107540,%eax
   101932:	83 ec 08             	sub    $0x8,%esp
   101935:	50                   	push   %eax
-  101936:	68 2c 75 10 00       	push   $0x10752c
+  101936:	68 40 75 10 00       	push   $0x107540
   10193b:	e8 a3 f8 ff ff       	call   1011e3 <memzero>
   101940:	83 c4 10             	add    $0x10,%esp
   101943:	b8 44 ec 94 00       	mov    $0x94ec44,%eax
@@ -2927,12 +2927,12 @@ Disassembly of section .text:
   10211a:	e8 61 f3 ff ff       	call   101480 <dprintf>
   10211f:	83 c4 10             	add    $0x10,%esp
   102122:	83 ec 08             	sub    $0x8,%esp
-  102125:	68 3f 30 10 00       	push   $0x10303f
+  102125:	68 df 30 10 00       	push   $0x1030df
   10212a:	68 4e 43 10 00       	push   $0x10434e
   10212f:	e8 4c f3 ff ff       	call   101480 <dprintf>
   102134:	83 c4 10             	add    $0x10,%esp
   102137:	83 ec 08             	sub    $0x8,%esp
-  10213a:	68 2c 75 10 00       	push   $0x10752c
+  10213a:	68 40 75 10 00       	push   $0x107540
   10213f:	68 5d 43 10 00       	push   $0x10435d
   102144:	e8 37 f3 ff ff       	call   101480 <dprintf>
   102149:	83 c4 10             	add    $0x10,%esp
@@ -3185,7 +3185,7 @@ void kern_init(uintptr_t mbi_addr)
   10240d:	c7 04 24 ba 44 10 00 	movl   $0x1044ba,(%esp)
   102414:	e8 67 f0 ff ff       	call   101480 <dprintf>
     if (test_MATInit() == 0)
-  102419:	e8 c2 07 00 00       	call   102be0 <test_MATInit>
+  102419:	e8 d2 07 00 00       	call   102bf0 <test_MATInit>
   10241e:	83 c4 10             	add    $0x10,%esp
   102421:	84 c0                	test   %al,%al
   102423:	0f 85 97 00 00 00    	jne    1024c0 <kern_init+0x120>
@@ -3202,7 +3202,7 @@ void kern_init(uintptr_t mbi_addr)
   102446:	c7 04 24 d8 44 10 00 	movl   $0x1044d8,(%esp)
   10244d:	e8 2e f0 ff ff       	call   101480 <dprintf>
     if (test_MATOp() == 0)
-  102452:	e8 79 09 00 00       	call   102dd0 <test_MATOp>
+  102452:	e8 19 0a 00 00       	call   102e70 <test_MATOp>
   102457:	83 c4 10             	add    $0x10,%esp
   10245a:	84 c0                	test   %al,%al
   10245c:	75 4a                	jne    1024a8 <kern_init+0x108>
@@ -3793,878 +3793,940 @@ void pmem_init(unsigned int mbi_addr)
 {
   102950:	55                   	push   %ebp
   102951:	57                   	push   %edi
-  102952:	56                   	push   %esi
-  102953:	53                   	push   %ebx
-  102954:	83 ec 28             	sub    $0x28,%esp
-    unsigned int pmm_table_length;
-    
-
-    // Calls the lower layer initialization primitive.
-    // The parameter mbi_addr should not be used in the further code.
-    devinit(mbi_addr);
-  102957:	ff 74 24 3c          	push   0x3c(%esp)
-  10295b:	e8 37 e0 ff ff       	call   100997 <devinit>
-     * Calculate the total number of physical pages provided by the hardware and
      * store it into the local variable nps.
      * Hint: Think of it as the highest address in the ranges of the memory map table,
      *       divided by the page size.
      */
     pmm_table_length = get_size();
-  102960:	e8 fa e4 ff ff       	call   100e5f <get_size>
-    highest_phy_address = get_mms(pmm_table_length - 1) + get_mml(pmm_table_length - 1);
-  102965:	8d 70 ff             	lea    -0x1(%eax),%esi
+    highest_phy_address = 0;
+  102952:	31 ff                	xor    %edi,%edi
+{
+  102954:	56                   	push   %esi
+    for (unsigned int i = 0; i < get_size(); i++) {
+  102955:	31 f6                	xor    %esi,%esi
+{
+  102957:	53                   	push   %ebx
+  102958:	83 ec 28             	sub    $0x28,%esp
+    devinit(mbi_addr);
+  10295b:	ff 74 24 3c          	push   0x3c(%esp)
+  10295f:	e8 33 e0 ff ff       	call   100997 <devinit>
     pmm_table_length = get_size();
-  102968:	89 c3                	mov    %eax,%ebx
-    highest_phy_address = get_mms(pmm_table_length - 1) + get_mml(pmm_table_length - 1);
-  10296a:	89 34 24             	mov    %esi,(%esp)
-  10296d:	e8 f7 e4 ff ff       	call   100e69 <get_mms>
-  102972:	89 34 24             	mov    %esi,(%esp)
-  102975:	89 c7                	mov    %eax,%edi
-  102977:	e8 47 e5 ff ff       	call   100ec3 <get_mml>
+  102964:	e8 f6 e4 ff ff       	call   100e5f <get_size>
+  102969:	89 44 24 14          	mov    %eax,0x14(%esp)
+    for (unsigned int i = 0; i < get_size(); i++) {
+  10296d:	83 c4 10             	add    $0x10,%esp
+  102970:	eb 09                	jmp    10297b <pmem_init+0x2b>
+  102972:	8d b6 00 00 00 00    	lea    0x0(%esi),%esi
+  102978:	83 c6 01             	add    $0x1,%esi
+  10297b:	e8 df e4 ff ff       	call   100e5f <get_size>
+  102980:	39 c6                	cmp    %eax,%esi
+  102982:	73 36                	jae    1029ba <pmem_init+0x6a>
+        if (get_mms(i) + get_mml(i) > highest_phy_address) {
+  102984:	83 ec 0c             	sub    $0xc,%esp
+  102987:	56                   	push   %esi
+  102988:	e8 dc e4 ff ff       	call   100e69 <get_mms>
+  10298d:	89 34 24             	mov    %esi,(%esp)
+  102990:	89 c3                	mov    %eax,%ebx
+  102992:	e8 2c e5 ff ff       	call   100ec3 <get_mml>
+  102997:	83 c4 10             	add    $0x10,%esp
+  10299a:	01 c3                	add    %eax,%ebx
+  10299c:	39 df                	cmp    %ebx,%edi
+  10299e:	73 d8                	jae    102978 <pmem_init+0x28>
+            highest_phy_address = get_mms(i) + get_mml(i);
+  1029a0:	83 ec 0c             	sub    $0xc,%esp
+  1029a3:	56                   	push   %esi
+  1029a4:	e8 c0 e4 ff ff       	call   100e69 <get_mms>
+  1029a9:	89 34 24             	mov    %esi,(%esp)
+  1029ac:	89 c7                	mov    %eax,%edi
+  1029ae:	e8 10 e5 ff ff       	call   100ec3 <get_mml>
+  1029b3:	83 c4 10             	add    $0x10,%esp
+  1029b6:	01 c7                	add    %eax,%edi
+  1029b8:	eb be                	jmp    102978 <pmem_init+0x28>
+        }
+    }
     nps = highest_phy_address/PAGESIZE + ((highest_phy_address % PAGESIZE) != 0); // TODO: Do we need to do ceiling instead of just raw division? 
-  10297c:	31 d2                	xor    %edx,%edx
-    highest_phy_address = get_mms(pmm_table_length - 1) + get_mml(pmm_table_length - 1);
-  10297e:	01 f8                	add    %edi,%eax
-    nps = highest_phy_address/PAGESIZE + ((highest_phy_address % PAGESIZE) != 0); // TODO: Do we need to do ceiling instead of just raw division? 
-  102980:	a9 ff 0f 00 00       	test   $0xfff,%eax
-  102985:	0f 95 c2             	setne  %dl
-  102988:	c1 e8 0c             	shr    $0xc,%eax
+  1029ba:	31 c0                	xor    %eax,%eax
+  1029bc:	f7 c7 ff 0f 00 00    	test   $0xfff,%edi
+  1029c2:	0f 95 c0             	setne  %al
+  1029c5:	c1 ef 0c             	shr    $0xc,%edi
+    set_nps(nps);  // Setting the value computed above to NUM_PAGES.
+  1029c8:	83 ec 0c             	sub    $0xc,%esp
      *    so in that case, you should consider those pages as unavailable.
      */
 
 
     // Pages: 0 to VM_USERLO_PI - 1 are reserved by the kernel, so set permissions to 1.
     unsigned int page_index = 0;
-  10298b:	31 f6                	xor    %esi,%esi
+  1029cb:	31 db                	xor    %ebx,%ebx
     nps = highest_phy_address/PAGESIZE + ((highest_phy_address % PAGESIZE) != 0); // TODO: Do we need to do ceiling instead of just raw division? 
-  10298d:	8d 3c 02             	lea    (%edx,%eax,1),%edi
+  1029cd:	8d 2c 38             	lea    (%eax,%edi,1),%ebp
     set_nps(nps);  // Setting the value computed above to NUM_PAGES.
-  102990:	89 3c 24             	mov    %edi,(%esp)
-  102993:	e8 98 fb ff ff       	call   102530 <set_nps>
-  102998:	83 c4 10             	add    $0x10,%esp
-  10299b:	8d 74 26 00          	lea    0x0(%esi,%eiz,1),%esi
-  10299f:	90                   	nop
+  1029d0:	55                   	push   %ebp
+  1029d1:	e8 5a fb ff ff       	call   102530 <set_nps>
+  1029d6:	83 c4 10             	add    $0x10,%esp
+  1029d9:	8d b4 26 00 00 00 00 	lea    0x0(%esi,%eiz,1),%esi
     for (;page_index < VM_USERLO_PI; page_index++) {
         at_set_perm(page_index, 1);
-  1029a0:	83 ec 08             	sub    $0x8,%esp
-  1029a3:	6a 01                	push   $0x1
-  1029a5:	56                   	push   %esi
+  1029e0:	83 ec 08             	sub    $0x8,%esp
+  1029e3:	6a 01                	push   $0x1
+  1029e5:	53                   	push   %ebx
     for (;page_index < VM_USERLO_PI; page_index++) {
-  1029a6:	83 c6 01             	add    $0x1,%esi
+  1029e6:	83 c3 01             	add    $0x1,%ebx
         at_set_perm(page_index, 1);
-  1029a9:	e8 b2 fb ff ff       	call   102560 <at_set_perm>
+  1029e9:	e8 72 fb ff ff       	call   102560 <at_set_perm>
     for (;page_index < VM_USERLO_PI; page_index++) {
-  1029ae:	83 c4 10             	add    $0x10,%esp
-  1029b1:	81 fe 00 00 04 00    	cmp    $0x40000,%esi
-  1029b7:	75 e7                	jne    1029a0 <pmem_init+0x50>
+  1029ee:	83 c4 10             	add    $0x10,%esp
+  1029f1:	81 fb 00 00 04 00    	cmp    $0x40000,%ebx
+  1029f7:	75 e7                	jne    1029e0 <pmem_init+0x90>
+  1029f9:	8d b4 26 00 00 00 00 	lea    0x0(%esi,%eiz,1),%esi
     }
 
-    // [VM_USERLO, VM_USERHI) set 2 ONLY IF the entire page falls into one of the ranges in the memory map table with the permission marked as usable, else 0.
-    unsigned int pmm_table_index = 0; 
-  1029b9:	89 7c 24 0c          	mov    %edi,0xc(%esp)
-  1029bd:	bd 00 00 00 40       	mov    $0x40000000,%ebp
-  1029c2:	89 34 24             	mov    %esi,(%esp)
-  1029c5:	31 f6                	xor    %esi,%esi
-  1029c7:	8d b4 26 00 00 00 00 	lea    0x0(%esi,%eiz,1),%esi
-  1029ce:	66 90                	xchg   %ax,%ax
-    unsigned int cur_page_start;
-    unsigned int cur_page_end;
-    for (; page_index < VM_USERHI_PI; page_index++) {
-
-        cur_page_start = page_index * PAGESIZE;
-        cur_page_end = (page_index + 1) * PAGESIZE - 1;
-  1029d0:	8b 04 24             	mov    (%esp),%eax
-  1029d3:	89 44 24 04          	mov    %eax,0x4(%esp)
-  1029d7:	83 c0 01             	add    $0x1,%eax
-  1029da:	89 04 24             	mov    %eax,(%esp)
-        
-        // Catch the table index up with the page index
-        while (pmm_table_index < pmm_table_length && (get_mms(pmm_table_index) + get_mml(pmm_table_index)) < cur_page_start) { 
-  1029dd:	39 de                	cmp    %ebx,%esi
-  1029df:	72 1a                	jb     1029fb <pmem_init+0xab>
-  1029e1:	e9 d2 00 00 00       	jmp    102ab8 <pmem_init+0x168>
-  1029e6:	8d b4 26 00 00 00 00 	lea    0x0(%esi,%eiz,1),%esi
-  1029ed:	8d 76 00             	lea    0x0(%esi),%esi
-            pmm_table_index++;
-  1029f0:	83 c6 01             	add    $0x1,%esi
-        while (pmm_table_index < pmm_table_length && (get_mms(pmm_table_index) + get_mml(pmm_table_index)) < cur_page_start) { 
-  1029f3:	39 f3                	cmp    %esi,%ebx
-  1029f5:	0f 84 bd 00 00 00    	je     102ab8 <pmem_init+0x168>
-  1029fb:	83 ec 0c             	sub    $0xc,%esp
-  1029fe:	56                   	push   %esi
-  1029ff:	e8 65 e4 ff ff       	call   100e69 <get_mms>
-  102a04:	89 34 24             	mov    %esi,(%esp)
-  102a07:	89 c7                	mov    %eax,%edi
-  102a09:	e8 b5 e4 ff ff       	call   100ec3 <get_mml>
+    // Blanket cover everything with perm 0, then fill in holes later
+    for (;page_index < VM_USERHI_PI; page_index++) {
+        at_set_perm(page_index, 0);
+  102a00:	83 ec 08             	sub    $0x8,%esp
+  102a03:	6a 00                	push   $0x0
+  102a05:	53                   	push   %ebx
+    for (;page_index < VM_USERHI_PI; page_index++) {
+  102a06:	83 c3 01             	add    $0x1,%ebx
+        at_set_perm(page_index, 0);
+  102a09:	e8 52 fb ff ff       	call   102560 <at_set_perm>
+    for (;page_index < VM_USERHI_PI; page_index++) {
   102a0e:	83 c4 10             	add    $0x10,%esp
-  102a11:	01 c7                	add    %eax,%edi
-  102a13:	39 ef                	cmp    %ebp,%edi
-  102a15:	72 d9                	jb     1029f0 <pmem_init+0xa0>
-        }  
-
-        // Set everything to BIOS if table finished 
-        if (pmm_table_index >= pmm_table_length) {
-  102a17:	39 de                	cmp    %ebx,%esi
-  102a19:	0f 83 99 00 00 00    	jae    102ab8 <pmem_init+0x168>
-            }
-            break; 
-        }
-
-        // Check if page contained in accessible memory segment
-        unsigned int cur_table_start = get_mms(pmm_table_index);
-  102a1f:	83 ec 0c             	sub    $0xc,%esp
-  102a22:	56                   	push   %esi
-  102a23:	e8 41 e4 ff ff       	call   100e69 <get_mms>
-        unsigned int cur_table_end = cur_table_start + + get_mml(pmm_table_index);
-  102a28:	89 34 24             	mov    %esi,(%esp)
-        unsigned int cur_table_start = get_mms(pmm_table_index);
-  102a2b:	89 c7                	mov    %eax,%edi
-        unsigned int cur_table_end = cur_table_start + + get_mml(pmm_table_index);
-  102a2d:	e8 91 e4 ff ff       	call   100ec3 <get_mml>
-  102a32:	89 44 24 18          	mov    %eax,0x18(%esp)
-        if (cur_table_start <= cur_page_start && is_usable(pmm_table_index) && cur_table_end >= cur_page_end) {
-  102a36:	83 c4 10             	add    $0x10,%esp
-  102a39:	39 fd                	cmp    %edi,%ebp
-  102a3b:	72 20                	jb     102a5d <pmem_init+0x10d>
-  102a3d:	83 ec 0c             	sub    $0xc,%esp
-  102a40:	56                   	push   %esi
-  102a41:	e8 e1 e4 ff ff       	call   100f27 <is_usable>
-        unsigned int cur_table_end = cur_table_start + + get_mml(pmm_table_index);
-  102a46:	8b 54 24 18          	mov    0x18(%esp),%edx
-        if (cur_table_start <= cur_page_start && is_usable(pmm_table_index) && cur_table_end >= cur_page_end) {
-  102a4a:	8d 8d ff 0f 00 00    	lea    0xfff(%ebp),%ecx
-  102a50:	83 c4 10             	add    $0x10,%esp
-        unsigned int cur_table_end = cur_table_start + + get_mml(pmm_table_index);
-  102a53:	01 d7                	add    %edx,%edi
-        if (cur_table_start <= cur_page_start && is_usable(pmm_table_index) && cur_table_end >= cur_page_end) {
-  102a55:	39 cf                	cmp    %ecx,%edi
-  102a57:	72 04                	jb     102a5d <pmem_init+0x10d>
-  102a59:	85 c0                	test   %eax,%eax
-  102a5b:	75 7e                	jne    102adb <pmem_init+0x18b>
-            at_set_perm(page_index, 2);
-        }
-        else {
-             at_set_perm(page_index, 0);
-  102a5d:	83 ec 08             	sub    $0x8,%esp
-  102a60:	6a 00                	push   $0x0
-  102a62:	ff 74 24 10          	push   0x10(%esp)
-  102a66:	e8 f5 fa ff ff       	call   102560 <at_set_perm>
-  102a6b:	83 c4 10             	add    $0x10,%esp
-    for (; page_index < VM_USERHI_PI; page_index++) {
-  102a6e:	81 c5 00 10 00 00    	add    $0x1000,%ebp
-  102a74:	81 3c 24 00 00 0f 00 	cmpl   $0xf0000,(%esp)
-  102a7b:	0f 85 4f ff ff ff    	jne    1029d0 <pmem_init+0x80>
-  102a81:	8b 7c 24 0c          	mov    0xc(%esp),%edi
-        }
+  102a11:	81 fb 00 00 0f 00    	cmp    $0xf0000,%ebx
+  102a17:	75 e7                	jne    102a00 <pmem_init+0xb0>
     }
 
+    // Iterate through pmm table to fill 
+    unsigned int range_start, range_end, potential_page_start;
+    for (unsigned int pmm_table_index = 0; pmm_table_index < pmm_table_length; pmm_table_index++) {
+  102a19:	8b 44 24 04          	mov    0x4(%esp),%eax
+            }
+        }
+    }
+    
     // VM_USERHI_PI to NUM_PAGES - 1 are reserved by the kernel, so set permissions to 1 
-    for (;page_index < nps - 1; page_index++) {
-  102a85:	8d 77 ff             	lea    -0x1(%edi),%esi
-  102a88:	bb 00 00 0f 00       	mov    $0xf0000,%ebx
-  102a8d:	81 fe 00 00 0f 00    	cmp    $0xf0000,%esi
-  102a93:	76 18                	jbe    102aad <pmem_init+0x15d>
-  102a95:	8d 76 00             	lea    0x0(%esi),%esi
-        at_set_perm(page_index, 1);
-  102a98:	83 ec 08             	sub    $0x8,%esp
-  102a9b:	6a 01                	push   $0x1
-  102a9d:	53                   	push   %ebx
-    for (;page_index < nps - 1; page_index++) {
-  102a9e:	83 c3 01             	add    $0x1,%ebx
-        at_set_perm(page_index, 1);
-  102aa1:	e8 ba fa ff ff       	call   102560 <at_set_perm>
-    for (;page_index < nps - 1; page_index++) {
-  102aa6:	83 c4 10             	add    $0x10,%esp
-  102aa9:	39 f3                	cmp    %esi,%ebx
-  102aab:	75 eb                	jne    102a98 <pmem_init+0x148>
+    for (page_index = VM_USERHI_PI; page_index < nps - 1; page_index++) {
+  102a1d:	83 ed 01             	sub    $0x1,%ebp
+    for (unsigned int pmm_table_index = 0; pmm_table_index < pmm_table_length; pmm_table_index++) {
+  102a20:	31 ff                	xor    %edi,%edi
+  102a22:	85 c0                	test   %eax,%eax
+  102a24:	0f 84 aa 00 00 00    	je     102ad4 <pmem_init+0x184>
+  102a2a:	89 5c 24 0c          	mov    %ebx,0xc(%esp)
+  102a2e:	eb 0d                	jmp    102a3d <pmem_init+0xed>
+  102a30:	83 c7 01             	add    $0x1,%edi
+  102a33:	39 7c 24 04          	cmp    %edi,0x4(%esp)
+  102a37:	0f 84 93 00 00 00    	je     102ad0 <pmem_init+0x180>
+        if (is_usable(pmm_table_index)) {
+  102a3d:	83 ec 0c             	sub    $0xc,%esp
+  102a40:	57                   	push   %edi
+  102a41:	e8 e1 e4 ff ff       	call   100f27 <is_usable>
+  102a46:	83 c4 10             	add    $0x10,%esp
+  102a49:	85 c0                	test   %eax,%eax
+  102a4b:	74 e3                	je     102a30 <pmem_init+0xe0>
+            range_start = get_mms(pmm_table_index);
+  102a4d:	83 ec 0c             	sub    $0xc,%esp
+            potential_page_start = range_start/PAGESIZE + ((range_start % PAGESIZE) != 0); // Ceiling so that don't deal with partial pages
+  102a50:	31 db                	xor    %ebx,%ebx
+            range_start = get_mms(pmm_table_index);
+  102a52:	57                   	push   %edi
+  102a53:	e8 11 e4 ff ff       	call   100e69 <get_mms>
+            range_end = range_start + get_mml(pmm_table_index);
+  102a58:	89 3c 24             	mov    %edi,(%esp)
+            range_start = get_mms(pmm_table_index);
+  102a5b:	89 44 24 18          	mov    %eax,0x18(%esp)
+            range_end = range_start + get_mml(pmm_table_index);
+  102a5f:	e8 5f e4 ff ff       	call   100ec3 <get_mml>
+  102a64:	8b 4c 24 18          	mov    0x18(%esp),%ecx
+            potential_page_start = range_start/PAGESIZE + ((range_start % PAGESIZE) != 0); // Ceiling so that don't deal with partial pages
+  102a68:	f7 c1 ff 0f 00 00    	test   $0xfff,%ecx
+            range_end = range_start + get_mml(pmm_table_index);
+  102a6e:	8d 34 08             	lea    (%eax,%ecx,1),%esi
+            potential_page_start = range_start/PAGESIZE + ((range_start % PAGESIZE) != 0); // Ceiling so that don't deal with partial pages
+  102a71:	58                   	pop    %eax
+  102a72:	89 c8                	mov    %ecx,%eax
+  102a74:	5a                   	pop    %edx
+            dprintf("range_start: 0x%x\n", range_start);
+  102a75:	51                   	push   %ecx
+            potential_page_start = range_start/PAGESIZE + ((range_start % PAGESIZE) != 0); // Ceiling so that don't deal with partial pages
+  102a76:	0f 95 c3             	setne  %bl
+  102a79:	c1 e8 0c             	shr    $0xc,%eax
+            dprintf("range_start: 0x%x\n", range_start);
+  102a7c:	68 5f 46 10 00       	push   $0x10465f
+            potential_page_start = range_start/PAGESIZE + ((range_start % PAGESIZE) != 0); // Ceiling so that don't deal with partial pages
+  102a81:	01 c3                	add    %eax,%ebx
+            dprintf("range_start: 0x%x\n", range_start);
+  102a83:	e8 f8 e9 ff ff       	call   101480 <dprintf>
+            dprintf("potential start page: 0x%x\n", potential_page_start);
+  102a88:	59                   	pop    %ecx
+  102a89:	58                   	pop    %eax
+  102a8a:	53                   	push   %ebx
+  102a8b:	68 72 46 10 00       	push   $0x104672
+  102a90:	e8 eb e9 ff ff       	call   101480 <dprintf>
+            while ((potential_page_start < nps - 1) && (((potential_page_start + 1) * PAGESIZE) <= range_end)) {
+  102a95:	83 c4 10             	add    $0x10,%esp
+  102a98:	39 eb                	cmp    %ebp,%ebx
+  102a9a:	72 08                	jb     102aa4 <pmem_init+0x154>
+  102a9c:	eb 92                	jmp    102a30 <pmem_init+0xe0>
+  102a9e:	66 90                	xchg   %ax,%ax
+  102aa0:	39 dd                	cmp    %ebx,%ebp
+  102aa2:	74 8c                	je     102a30 <pmem_init+0xe0>
+  102aa4:	83 c3 01             	add    $0x1,%ebx
+  102aa7:	89 d8                	mov    %ebx,%eax
+  102aa9:	c1 e0 0c             	shl    $0xc,%eax
+  102aac:	39 c6                	cmp    %eax,%esi
+  102aae:	72 80                	jb     102a30 <pmem_init+0xe0>
+                if ((potential_page_start >= VM_USERLO_PI) && (potential_page_start < VM_USERHI_PI)) {
+  102ab0:	8d 83 ff ff fb ff    	lea    -0x40001(%ebx),%eax
+  102ab6:	3d ff ff 0a 00       	cmp    $0xaffff,%eax
+  102abb:	77 e3                	ja     102aa0 <pmem_init+0x150>
+                    at_set_perm(potential_page_start, 2);
+  102abd:	83 ec 08             	sub    $0x8,%esp
+  102ac0:	8d 43 ff             	lea    -0x1(%ebx),%eax
+  102ac3:	6a 02                	push   $0x2
+  102ac5:	50                   	push   %eax
+  102ac6:	e8 95 fa ff ff       	call   102560 <at_set_perm>
+  102acb:	83 c4 10             	add    $0x10,%esp
+  102ace:	eb d0                	jmp    102aa0 <pmem_init+0x150>
+  102ad0:	8b 5c 24 0c          	mov    0xc(%esp),%ebx
+    for (page_index = VM_USERHI_PI; page_index < nps - 1; page_index++) {
+  102ad4:	81 fd 00 00 0f 00    	cmp    $0xf0000,%ebp
+  102ada:	76 19                	jbe    102af5 <pmem_init+0x1a5>
+  102adc:	8d 74 26 00          	lea    0x0(%esi,%eiz,1),%esi
+        at_set_perm(page_index, 1); 
+  102ae0:	83 ec 08             	sub    $0x8,%esp
+  102ae3:	6a 01                	push   $0x1
+  102ae5:	53                   	push   %ebx
+    for (page_index = VM_USERHI_PI; page_index < nps - 1; page_index++) {
+  102ae6:	83 c3 01             	add    $0x1,%ebx
+        at_set_perm(page_index, 1); 
+  102ae9:	e8 72 fa ff ff       	call   102560 <at_set_perm>
+    for (page_index = VM_USERHI_PI; page_index < nps - 1; page_index++) {
+  102aee:	83 c4 10             	add    $0x10,%esp
+  102af1:	39 eb                	cmp    %ebp,%ebx
+  102af3:	75 eb                	jne    102ae0 <pmem_init+0x190>
     }
 }
-  102aad:	83 c4 1c             	add    $0x1c,%esp
-  102ab0:	5b                   	pop    %ebx
-  102ab1:	5e                   	pop    %esi
-  102ab2:	5f                   	pop    %edi
-  102ab3:	5d                   	pop    %ebp
-  102ab4:	c3                   	ret    
-  102ab5:	8d 76 00             	lea    0x0(%esi),%esi
-  102ab8:	8b 7c 24 0c          	mov    0xc(%esp),%edi
-  102abc:	8b 5c 24 04          	mov    0x4(%esp),%ebx
-                at_set_perm(page_index, 0);
-  102ac0:	83 ec 08             	sub    $0x8,%esp
-  102ac3:	6a 00                	push   $0x0
-  102ac5:	53                   	push   %ebx
-            for (; page_index < VM_USERHI_PI; page_index++) {
-  102ac6:	83 c3 01             	add    $0x1,%ebx
-                at_set_perm(page_index, 0);
-  102ac9:	e8 92 fa ff ff       	call   102560 <at_set_perm>
-            for (; page_index < VM_USERHI_PI; page_index++) {
-  102ace:	83 c4 10             	add    $0x10,%esp
-  102ad1:	81 fb 00 00 0f 00    	cmp    $0xf0000,%ebx
-  102ad7:	75 e7                	jne    102ac0 <pmem_init+0x170>
-  102ad9:	eb aa                	jmp    102a85 <pmem_init+0x135>
-            at_set_perm(page_index, 2);
-  102adb:	83 ec 08             	sub    $0x8,%esp
-  102ade:	6a 02                	push   $0x2
-  102ae0:	ff 74 24 10          	push   0x10(%esp)
-  102ae4:	e8 77 fa ff ff       	call   102560 <at_set_perm>
-  102ae9:	83 c4 10             	add    $0x10,%esp
-  102aec:	eb 80                	jmp    102a6e <pmem_init+0x11e>
-  102aee:	66 90                	xchg   %ax,%ax
+  102af5:	83 c4 1c             	add    $0x1c,%esp
+  102af8:	5b                   	pop    %ebx
+  102af9:	5e                   	pop    %esi
+  102afa:	5f                   	pop    %edi
+  102afb:	5d                   	pop    %ebp
+  102afc:	c3                   	ret    
+  102afd:	66 90                	xchg   %ax,%ax
+  102aff:	90                   	nop
 
-00102af0 <MATInit_test1>:
+00102b00 <MATInit_test1>:
 #define VM_USERHI    0xF0000000
 #define VM_USERLO_PI (VM_USERLO / PAGESIZE)
 #define VM_USERHI_PI (VM_USERHI / PAGESIZE)
 
 int MATInit_test1()
 {
-  102af0:	56                   	push   %esi
-  102af1:	53                   	push   %ebx
-  102af2:	31 db                	xor    %ebx,%ebx
-  102af4:	83 ec 04             	sub    $0x4,%esp
+  102b00:	56                   	push   %esi
+  102b01:	53                   	push   %ebx
+  102b02:	31 db                	xor    %ebx,%ebx
+  102b04:	83 ec 04             	sub    $0x4,%esp
     int i;
     int nps = get_nps();
-  102af7:	e8 24 fa ff ff       	call   102520 <get_nps>
-  102afc:	89 c6                	mov    %eax,%esi
+  102b07:	e8 14 fa ff ff       	call   102520 <get_nps>
+  102b0c:	89 c6                	mov    %eax,%esi
     if (nps <= 1000) {
-  102afe:	3d e8 03 00 00       	cmp    $0x3e8,%eax
-  102b03:	7f 12                	jg     102b17 <MATInit_test1+0x27>
-  102b05:	e9 a6 00 00 00       	jmp    102bb0 <MATInit_test1+0xc0>
-  102b0a:	8d b6 00 00 00 00    	lea    0x0(%esi),%esi
+  102b0e:	3d e8 03 00 00       	cmp    $0x3e8,%eax
+  102b13:	7f 12                	jg     102b27 <MATInit_test1+0x27>
+  102b15:	e9 a6 00 00 00       	jmp    102bc0 <MATInit_test1+0xc0>
+  102b1a:	8d b6 00 00 00 00    	lea    0x0(%esi),%esi
         dprintf("test 1.1 failed: (%d <= 1000)\n", nps);
         return 1;
     }
     for (i = 0; i < nps; i++) {
-  102b10:	83 c3 01             	add    $0x1,%ebx
-  102b13:	39 de                	cmp    %ebx,%esi
-  102b15:	74 51                	je     102b68 <MATInit_test1+0x78>
+  102b20:	83 c3 01             	add    $0x1,%ebx
+  102b23:	39 de                	cmp    %ebx,%esi
+  102b25:	74 51                	je     102b78 <MATInit_test1+0x78>
         if (at_is_allocated(i) != 0) {
-  102b17:	83 ec 0c             	sub    $0xc,%esp
-  102b1a:	53                   	push   %ebx
-  102b1b:	e8 60 fa ff ff       	call   102580 <at_is_allocated>
-  102b20:	83 c4 10             	add    $0x10,%esp
-  102b23:	85 c0                	test   %eax,%eax
-  102b25:	75 59                	jne    102b80 <MATInit_test1+0x90>
+  102b27:	83 ec 0c             	sub    $0xc,%esp
+  102b2a:	53                   	push   %ebx
+  102b2b:	e8 50 fa ff ff       	call   102580 <at_is_allocated>
+  102b30:	83 c4 10             	add    $0x10,%esp
+  102b33:	85 c0                	test   %eax,%eax
+  102b35:	75 59                	jne    102b90 <MATInit_test1+0x90>
             dprintf("test 1.2 failed (i = %d): (%d != 0)\n", i, at_is_allocated(i));
             return 1;
         }
         if ((i < VM_USERLO_PI || VM_USERHI_PI <= i)
-  102b27:	8d 83 00 00 fc ff    	lea    -0x40000(%ebx),%eax
-  102b2d:	3d ff ff 0a 00       	cmp    $0xaffff,%eax
-  102b32:	76 dc                	jbe    102b10 <MATInit_test1+0x20>
+  102b37:	8d 83 00 00 fc ff    	lea    -0x40000(%ebx),%eax
+  102b3d:	3d ff ff 0a 00       	cmp    $0xaffff,%eax
+  102b42:	76 dc                	jbe    102b20 <MATInit_test1+0x20>
             && at_is_norm(i) != 0) {
-  102b34:	83 ec 0c             	sub    $0xc,%esp
-  102b37:	53                   	push   %ebx
-  102b38:	e8 03 fa ff ff       	call   102540 <at_is_norm>
-  102b3d:	83 c4 10             	add    $0x10,%esp
-  102b40:	85 c0                	test   %eax,%eax
-  102b42:	74 cc                	je     102b10 <MATInit_test1+0x20>
-            dprintf("test 1.3 failed (i = %d): (%d != 0)\n", i, at_is_norm(i));
   102b44:	83 ec 0c             	sub    $0xc,%esp
   102b47:	53                   	push   %ebx
   102b48:	e8 f3 f9 ff ff       	call   102540 <at_is_norm>
-  102b4d:	83 c4 0c             	add    $0xc,%esp
-  102b50:	50                   	push   %eax
-  102b51:	53                   	push   %ebx
-  102b52:	68 a8 46 10 00       	push   $0x1046a8
-  102b57:	e8 24 e9 ff ff       	call   101480 <dprintf>
+  102b4d:	83 c4 10             	add    $0x10,%esp
+  102b50:	85 c0                	test   %eax,%eax
+  102b52:	74 cc                	je     102b20 <MATInit_test1+0x20>
+            dprintf("test 1.3 failed (i = %d): (%d != 0)\n", i, at_is_norm(i));
+  102b54:	83 ec 0c             	sub    $0xc,%esp
+  102b57:	53                   	push   %ebx
+  102b58:	e8 e3 f9 ff ff       	call   102540 <at_is_norm>
+  102b5d:	83 c4 0c             	add    $0xc,%esp
+  102b60:	50                   	push   %eax
+  102b61:	53                   	push   %ebx
+  102b62:	68 d8 46 10 00       	push   $0x1046d8
+  102b67:	e8 14 e9 ff ff       	call   101480 <dprintf>
             return 1;
-  102b5c:	83 c4 10             	add    $0x10,%esp
-  102b5f:	eb 3a                	jmp    102b9b <MATInit_test1+0xab>
-  102b61:	8d b4 26 00 00 00 00 	lea    0x0(%esi,%eiz,1),%esi
+  102b6c:	83 c4 10             	add    $0x10,%esp
+  102b6f:	eb 3a                	jmp    102bab <MATInit_test1+0xab>
+  102b71:	8d b4 26 00 00 00 00 	lea    0x0(%esi,%eiz,1),%esi
         }
     }
     dprintf("test 1 passed.\n");
-  102b68:	83 ec 0c             	sub    $0xc,%esp
-  102b6b:	68 db 45 10 00       	push   $0x1045db
-  102b70:	e8 0b e9 ff ff       	call   101480 <dprintf>
+  102b78:	83 ec 0c             	sub    $0xc,%esp
+  102b7b:	68 db 45 10 00       	push   $0x1045db
+  102b80:	e8 fb e8 ff ff       	call   101480 <dprintf>
     return 0;
-  102b75:	83 c4 10             	add    $0x10,%esp
-  102b78:	31 c0                	xor    %eax,%eax
+  102b85:	83 c4 10             	add    $0x10,%esp
+  102b88:	31 c0                	xor    %eax,%eax
 }
-  102b7a:	83 c4 04             	add    $0x4,%esp
-  102b7d:	5b                   	pop    %ebx
-  102b7e:	5e                   	pop    %esi
-  102b7f:	c3                   	ret    
+  102b8a:	83 c4 04             	add    $0x4,%esp
+  102b8d:	5b                   	pop    %ebx
+  102b8e:	5e                   	pop    %esi
+  102b8f:	c3                   	ret    
             dprintf("test 1.2 failed (i = %d): (%d != 0)\n", i, at_is_allocated(i));
-  102b80:	83 ec 0c             	sub    $0xc,%esp
-  102b83:	53                   	push   %ebx
-  102b84:	e8 f7 f9 ff ff       	call   102580 <at_is_allocated>
-  102b89:	83 c4 0c             	add    $0xc,%esp
-  102b8c:	50                   	push   %eax
-  102b8d:	53                   	push   %ebx
-  102b8e:	68 80 46 10 00       	push   $0x104680
-  102b93:	e8 e8 e8 ff ff       	call   101480 <dprintf>
+  102b90:	83 ec 0c             	sub    $0xc,%esp
+  102b93:	53                   	push   %ebx
+  102b94:	e8 e7 f9 ff ff       	call   102580 <at_is_allocated>
+  102b99:	83 c4 0c             	add    $0xc,%esp
+  102b9c:	50                   	push   %eax
+  102b9d:	53                   	push   %ebx
+  102b9e:	68 b0 46 10 00       	push   $0x1046b0
+  102ba3:	e8 d8 e8 ff ff       	call   101480 <dprintf>
             return 1;
-  102b98:	83 c4 10             	add    $0x10,%esp
+  102ba8:	83 c4 10             	add    $0x10,%esp
 }
-  102b9b:	83 c4 04             	add    $0x4,%esp
+  102bab:	83 c4 04             	add    $0x4,%esp
         return 1;
-  102b9e:	b8 01 00 00 00       	mov    $0x1,%eax
+  102bae:	b8 01 00 00 00       	mov    $0x1,%eax
 }
-  102ba3:	5b                   	pop    %ebx
-  102ba4:	5e                   	pop    %esi
-  102ba5:	c3                   	ret    
-  102ba6:	8d b4 26 00 00 00 00 	lea    0x0(%esi,%eiz,1),%esi
-  102bad:	8d 76 00             	lea    0x0(%esi),%esi
+  102bb3:	5b                   	pop    %ebx
+  102bb4:	5e                   	pop    %esi
+  102bb5:	c3                   	ret    
+  102bb6:	8d b4 26 00 00 00 00 	lea    0x0(%esi,%eiz,1),%esi
+  102bbd:	8d 76 00             	lea    0x0(%esi),%esi
         dprintf("test 1.1 failed: (%d <= 1000)\n", nps);
-  102bb0:	83 ec 08             	sub    $0x8,%esp
-  102bb3:	50                   	push   %eax
-  102bb4:	68 60 46 10 00       	push   $0x104660
-  102bb9:	e8 c2 e8 ff ff       	call   101480 <dprintf>
+  102bc0:	83 ec 08             	sub    $0x8,%esp
+  102bc3:	50                   	push   %eax
+  102bc4:	68 90 46 10 00       	push   $0x104690
+  102bc9:	e8 b2 e8 ff ff       	call   101480 <dprintf>
         return 1;
-  102bbe:	83 c4 10             	add    $0x10,%esp
-  102bc1:	eb d8                	jmp    102b9b <MATInit_test1+0xab>
-  102bc3:	8d b4 26 00 00 00 00 	lea    0x0(%esi,%eiz,1),%esi
-  102bca:	8d b6 00 00 00 00    	lea    0x0(%esi),%esi
+  102bce:	83 c4 10             	add    $0x10,%esp
+  102bd1:	eb d8                	jmp    102bab <MATInit_test1+0xab>
+  102bd3:	8d b4 26 00 00 00 00 	lea    0x0(%esi,%eiz,1),%esi
+  102bda:	8d b6 00 00 00 00    	lea    0x0(%esi),%esi
 
-00102bd0 <MATInit_test_own>:
+00102be0 <MATInit_test_own>:
 int MATInit_test_own()
 {
     // TODO (optional)
     // dprintf("own test passed.\n");
     return 0;
 }
-  102bd0:	31 c0                	xor    %eax,%eax
-  102bd2:	c3                   	ret    
-  102bd3:	8d b4 26 00 00 00 00 	lea    0x0(%esi,%eiz,1),%esi
-  102bda:	8d b6 00 00 00 00    	lea    0x0(%esi),%esi
+  102be0:	31 c0                	xor    %eax,%eax
+  102be2:	c3                   	ret    
+  102be3:	8d b4 26 00 00 00 00 	lea    0x0(%esi,%eiz,1),%esi
+  102bea:	8d b6 00 00 00 00    	lea    0x0(%esi),%esi
 
-00102be0 <test_MATInit>:
+00102bf0 <test_MATInit>:
 
 int test_MATInit()
 {
     return MATInit_test1() + MATInit_test_own();
-  102be0:	e9 0b ff ff ff       	jmp    102af0 <MATInit_test1>
-  102be5:	66 90                	xchg   %ax,%ax
-  102be7:	66 90                	xchg   %ax,%ax
-  102be9:	66 90                	xchg   %ax,%ax
-  102beb:	66 90                	xchg   %ax,%ax
-  102bed:	66 90                	xchg   %ax,%ax
-  102bef:	90                   	nop
+  102bf0:	e9 0b ff ff ff       	jmp    102b00 <MATInit_test1>
+  102bf5:	66 90                	xchg   %ax,%ax
+  102bf7:	66 90                	xchg   %ax,%ax
+  102bf9:	66 90                	xchg   %ax,%ax
+  102bfb:	66 90                	xchg   %ax,%ax
+  102bfd:	66 90                	xchg   %ax,%ax
+  102bff:	90                   	nop
 
-00102bf0 <palloc>:
- *    scan the allocation table from scratch every time.
+00102c00 <palloc>:
  */
 
 unsigned int prev_pi = VM_USERLO_PI;
+unsigned int cache[] = {UINT_MAX,UINT_MAX,UINT_MAX,UINT_MAX,UINT_MAX};
 unsigned int palloc()
 {
-  102bf0:	53                   	push   %ebx
-  102bf1:	83 ec 08             	sub    $0x8,%esp
-    Optimized:
-    - Store last index got to when scanning? Then when at end go back to beginning. Or store like data structure of free ones?
+  102c00:	53                   	push   %ebx
+    // Check cache
+    for (unsigned int i = 0; i < CACHE_LEN; i++) {
+  102c01:	31 c0                	xor    %eax,%eax
+{
+  102c03:	83 ec 08             	sub    $0x8,%esp
+        if (cache[i] != UINT_MAX) {
+  102c06:	8b 1c 85 28 75 10 00 	mov    0x107528(,%eax,4),%ebx
+  102c0d:	83 fb ff             	cmp    $0xffffffff,%ebx
+  102c10:	0f 85 e2 00 00 00    	jne    102cf8 <palloc+0xf8>
+    for (unsigned int i = 0; i < CACHE_LEN; i++) {
+  102c16:	83 c0 01             	add    $0x1,%eax
+  102c19:	83 f8 05             	cmp    $0x5,%eax
+  102c1c:	75 e8                	jne    102c06 <palloc+0x6>
+            return cache_hit;
+        }
+    }
 
-
-    */
+    // Start linear scan from previous scan end
     for (unsigned int pi = prev_pi; pi < VM_USERHI_PI; pi++) {
-  102bf4:	8b 1d 28 75 10 00    	mov    0x107528,%ebx
-  102bfa:	81 fb ff ff 0e 00    	cmp    $0xeffff,%ebx
-  102c00:	76 11                	jbe    102c13 <palloc+0x23>
-  102c02:	eb 48                	jmp    102c4c <palloc+0x5c>
-  102c04:	8d 74 26 00          	lea    0x0(%esi,%eiz,1),%esi
-  102c08:	83 c3 01             	add    $0x1,%ebx
-  102c0b:	81 fb 00 00 0f 00    	cmp    $0xf0000,%ebx
-  102c11:	74 2d                	je     102c40 <palloc+0x50>
-        if (at_is_allocated(pi) == 0) {
-  102c13:	83 ec 0c             	sub    $0xc,%esp
-  102c16:	53                   	push   %ebx
-  102c17:	e8 64 f9 ff ff       	call   102580 <at_is_allocated>
-  102c1c:	83 c4 10             	add    $0x10,%esp
-  102c1f:	85 c0                	test   %eax,%eax
-  102c21:	75 e5                	jne    102c08 <palloc+0x18>
-            return pi;
-        }
-    }
-    for (unsigned int pi = VM_USERLO_PI; pi < prev_pi; pi++) {
-        if (at_is_allocated(pi) == 0) {
+  102c1e:	8b 1d 3c 75 10 00    	mov    0x10753c,%ebx
+  102c24:	81 fb ff ff 0e 00    	cmp    $0xeffff,%ebx
+  102c2a:	76 0f                	jbe    102c3b <palloc+0x3b>
+  102c2c:	eb 56                	jmp    102c84 <palloc+0x84>
+  102c2e:	66 90                	xchg   %ax,%ax
+  102c30:	83 c3 01             	add    $0x1,%ebx
+  102c33:	81 fb 00 00 0f 00    	cmp    $0xf0000,%ebx
+  102c39:	74 3d                	je     102c78 <palloc+0x78>
+        if (at_is_allocated(pi) == 0 && at_is_norm(pi) == 1) {
+  102c3b:	83 ec 0c             	sub    $0xc,%esp
+  102c3e:	53                   	push   %ebx
+  102c3f:	e8 3c f9 ff ff       	call   102580 <at_is_allocated>
+  102c44:	83 c4 10             	add    $0x10,%esp
+  102c47:	85 c0                	test   %eax,%eax
+  102c49:	75 e5                	jne    102c30 <palloc+0x30>
+  102c4b:	83 ec 0c             	sub    $0xc,%esp
+  102c4e:	53                   	push   %ebx
+  102c4f:	e8 ec f8 ff ff       	call   102540 <at_is_norm>
+  102c54:	83 c4 10             	add    $0x10,%esp
+  102c57:	83 f8 01             	cmp    $0x1,%eax
+  102c5a:	75 d4                	jne    102c30 <palloc+0x30>
             at_set_allocated(pi, 1);
-  102c23:	83 ec 08             	sub    $0x8,%esp
-  102c26:	6a 01                	push   $0x1
-  102c28:	53                   	push   %ebx
-  102c29:	e8 72 f9 ff ff       	call   1025a0 <at_set_allocated>
-            prev_pi = pi;
+  102c5c:	83 ec 08             	sub    $0x8,%esp
+  102c5f:	6a 01                	push   $0x1
+  102c61:	53                   	push   %ebx
+  102c62:	e8 39 f9 ff ff       	call   1025a0 <at_set_allocated>
             return pi;
-  102c2e:	89 d8                	mov    %ebx,%eax
-  102c30:	83 c4 10             	add    $0x10,%esp
-            prev_pi = pi;
-  102c33:	a3 28 75 10 00       	mov    %eax,0x107528
-        }
+  102c67:	83 c4 10             	add    $0x10,%esp
     }
-    prev_pi = VM_USERLO_PI;
+
+    prev_pi = VM_USERLO_PI; // Save index ended scanning at 
 
     return 0;
 }
-  102c38:	83 c4 08             	add    $0x8,%esp
-  102c3b:	89 d8                	mov    %ebx,%eax
-  102c3d:	5b                   	pop    %ebx
-  102c3e:	c3                   	ret    
-  102c3f:	90                   	nop
+  102c6a:	89 d8                	mov    %ebx,%eax
+  102c6c:	83 c4 08             	add    $0x8,%esp
+  102c6f:	5b                   	pop    %ebx
+  102c70:	c3                   	ret    
+  102c71:	8d b4 26 00 00 00 00 	lea    0x0(%esi,%eiz,1),%esi
     for (unsigned int pi = VM_USERLO_PI; pi < prev_pi; pi++) {
-  102c40:	81 3d 28 75 10 00 00 	cmpl   $0x40000,0x107528
-  102c47:	00 04 00 
-  102c4a:	76 2c                	jbe    102c78 <palloc+0x88>
-  102c4c:	bb 00 00 04 00       	mov    $0x40000,%ebx
-  102c51:	eb 10                	jmp    102c63 <palloc+0x73>
-  102c53:	8d 74 26 00          	lea    0x0(%esi,%eiz,1),%esi
-  102c57:	90                   	nop
-  102c58:	83 c3 01             	add    $0x1,%ebx
-  102c5b:	3b 1d 28 75 10 00    	cmp    0x107528,%ebx
-  102c61:	73 15                	jae    102c78 <palloc+0x88>
-        if (at_is_allocated(pi) == 0) {
-  102c63:	83 ec 0c             	sub    $0xc,%esp
-  102c66:	53                   	push   %ebx
-  102c67:	e8 14 f9 ff ff       	call   102580 <at_is_allocated>
-  102c6c:	83 c4 10             	add    $0x10,%esp
-  102c6f:	85 c0                	test   %eax,%eax
-  102c71:	75 e5                	jne    102c58 <palloc+0x68>
-  102c73:	eb ae                	jmp    102c23 <palloc+0x33>
-  102c75:	8d 76 00             	lea    0x0(%esi),%esi
-    return 0;
-  102c78:	b8 00 00 04 00       	mov    $0x40000,%eax
-  102c7d:	31 db                	xor    %ebx,%ebx
-            prev_pi = pi;
-  102c7f:	a3 28 75 10 00       	mov    %eax,0x107528
-}
-  102c84:	83 c4 08             	add    $0x8,%esp
-  102c87:	89 d8                	mov    %ebx,%eax
-  102c89:	5b                   	pop    %ebx
-  102c8a:	c3                   	ret    
+  102c78:	81 3d 3c 75 10 00 00 	cmpl   $0x40000,0x10753c
+  102c7f:	00 04 00 
+  102c82:	76 5c                	jbe    102ce0 <palloc+0xe0>
+  102c84:	bb 00 00 04 00       	mov    $0x40000,%ebx
+  102c89:	eb 10                	jmp    102c9b <palloc+0x9b>
   102c8b:	8d 74 26 00          	lea    0x0(%esi,%eiz,1),%esi
   102c8f:	90                   	nop
+  102c90:	83 c3 01             	add    $0x1,%ebx
+  102c93:	3b 1d 3c 75 10 00    	cmp    0x10753c,%ebx
+  102c99:	73 45                	jae    102ce0 <palloc+0xe0>
+        if (at_is_allocated(pi) == 0 && at_is_norm(pi) == 1) {
+  102c9b:	83 ec 0c             	sub    $0xc,%esp
+  102c9e:	53                   	push   %ebx
+  102c9f:	e8 dc f8 ff ff       	call   102580 <at_is_allocated>
+  102ca4:	83 c4 10             	add    $0x10,%esp
+  102ca7:	85 c0                	test   %eax,%eax
+  102ca9:	75 e5                	jne    102c90 <palloc+0x90>
+  102cab:	83 ec 0c             	sub    $0xc,%esp
+  102cae:	53                   	push   %ebx
+  102caf:	e8 8c f8 ff ff       	call   102540 <at_is_norm>
+  102cb4:	83 c4 10             	add    $0x10,%esp
+  102cb7:	83 f8 01             	cmp    $0x1,%eax
+  102cba:	75 d4                	jne    102c90 <palloc+0x90>
+            at_set_allocated(pi, 1);
+  102cbc:	83 ec 08             	sub    $0x8,%esp
+  102cbf:	6a 01                	push   $0x1
+  102cc1:	53                   	push   %ebx
+  102cc2:	e8 d9 f8 ff ff       	call   1025a0 <at_set_allocated>
+            return pi;
+  102cc7:	83 c4 10             	add    $0x10,%esp
+            prev_pi = pi;
+  102cca:	89 1d 3c 75 10 00    	mov    %ebx,0x10753c
+}
+  102cd0:	89 d8                	mov    %ebx,%eax
+  102cd2:	83 c4 08             	add    $0x8,%esp
+  102cd5:	5b                   	pop    %ebx
+  102cd6:	c3                   	ret    
+  102cd7:	8d b4 26 00 00 00 00 	lea    0x0(%esi,%eiz,1),%esi
+  102cde:	66 90                	xchg   %ax,%ax
+    prev_pi = VM_USERLO_PI; // Save index ended scanning at 
+  102ce0:	c7 05 3c 75 10 00 00 	movl   $0x40000,0x10753c
+  102ce7:	00 04 00 
+    return 0;
+  102cea:	31 db                	xor    %ebx,%ebx
+}
+  102cec:	83 c4 08             	add    $0x8,%esp
+  102cef:	89 d8                	mov    %ebx,%eax
+  102cf1:	5b                   	pop    %ebx
+  102cf2:	c3                   	ret    
+  102cf3:	8d 74 26 00          	lea    0x0(%esi,%eiz,1),%esi
+  102cf7:	90                   	nop
+            cache[i] = UINT_MAX;
+  102cf8:	c7 04 85 28 75 10 00 	movl   $0xffffffff,0x107528(,%eax,4)
+  102cff:	ff ff ff ff 
+}
+  102d03:	83 c4 08             	add    $0x8,%esp
+  102d06:	89 d8                	mov    %ebx,%eax
+  102d08:	5b                   	pop    %ebx
+  102d09:	c3                   	ret    
+  102d0a:	8d b6 00 00 00 00    	lea    0x0(%esi),%esi
 
-00102c90 <pfree>:
+00102d10 <pfree>:
  * in the allocation table.
  *
  * Hint: Simple.
  */
 void pfree(unsigned int pfree_index)
 {
-  102c90:	83 ec 14             	sub    $0x14,%esp
-    // TODO
+  102d10:	83 ec 0c             	sub    $0xc,%esp
+    // Add to cache 
+    for (unsigned int i = 0; i < CACHE_LEN; i++) {
+  102d13:	31 c0                	xor    %eax,%eax
+{
+  102d15:	8b 54 24 10          	mov    0x10(%esp),%edx
+  102d19:	8d b4 26 00 00 00 00 	lea    0x0(%esi,%eiz,1),%esi
+        if (cache[i] == UINT_MAX) {
+  102d20:	83 3c 85 28 75 10 00 	cmpl   $0xffffffff,0x107528(,%eax,4)
+  102d27:	ff 
+  102d28:	75 07                	jne    102d31 <pfree+0x21>
+            cache[i] = pfree_index;
+  102d2a:	89 14 85 28 75 10 00 	mov    %edx,0x107528(,%eax,4)
+    for (unsigned int i = 0; i < CACHE_LEN; i++) {
+  102d31:	83 c0 01             	add    $0x1,%eax
+  102d34:	83 f8 05             	cmp    $0x5,%eax
+  102d37:	75 e7                	jne    102d20 <pfree+0x10>
+        }
+    }
     at_set_allocated(pfree_index, 0);
-  102c93:	6a 00                	push   $0x0
-  102c95:	ff 74 24 1c          	push   0x1c(%esp)
-  102c99:	e8 02 f9 ff ff       	call   1025a0 <at_set_allocated>
+  102d39:	83 ec 08             	sub    $0x8,%esp
+  102d3c:	6a 00                	push   $0x0
+  102d3e:	52                   	push   %edx
+  102d3f:	e8 5c f8 ff ff       	call   1025a0 <at_set_allocated>
 }
-  102c9e:	83 c4 1c             	add    $0x1c,%esp
-  102ca1:	c3                   	ret    
-  102ca2:	66 90                	xchg   %ax,%ax
-  102ca4:	66 90                	xchg   %ax,%ax
-  102ca6:	66 90                	xchg   %ax,%ax
-  102ca8:	66 90                	xchg   %ax,%ax
-  102caa:	66 90                	xchg   %ax,%ax
-  102cac:	66 90                	xchg   %ax,%ax
-  102cae:	66 90                	xchg   %ax,%ax
+  102d44:	83 c4 1c             	add    $0x1c,%esp
+  102d47:	c3                   	ret    
+  102d48:	66 90                	xchg   %ax,%ax
+  102d4a:	66 90                	xchg   %ax,%ax
+  102d4c:	66 90                	xchg   %ax,%ax
+  102d4e:	66 90                	xchg   %ax,%ax
 
-00102cb0 <MATOp_test1>:
+00102d50 <MATOp_test1>:
 #define VM_USERHI    0xF0000000
 #define VM_USERLO_PI (VM_USERLO / PAGESIZE)
 #define VM_USERHI_PI (VM_USERHI / PAGESIZE)
 
 int MATOp_test1()
 {
-  102cb0:	53                   	push   %ebx
-  102cb1:	83 ec 08             	sub    $0x8,%esp
+  102d50:	53                   	push   %ebx
+  102d51:	83 ec 08             	sub    $0x8,%esp
     int page_index = palloc();
-  102cb4:	e8 37 ff ff ff       	call   102bf0 <palloc>
-  102cb9:	89 c3                	mov    %eax,%ebx
+  102d54:	e8 a7 fe ff ff       	call   102c00 <palloc>
+  102d59:	89 c3                	mov    %eax,%ebx
     if (page_index < VM_USERLO_PI || VM_USERHI_PI <= page_index) {
-  102cbb:	2d 00 00 04 00       	sub    $0x40000,%eax
-  102cc0:	3d ff ff 0a 00       	cmp    $0xaffff,%eax
-  102cc5:	0f 87 85 00 00 00    	ja     102d50 <MATOp_test1+0xa0>
+  102d5b:	2d 00 00 04 00       	sub    $0x40000,%eax
+  102d60:	3d ff ff 0a 00       	cmp    $0xaffff,%eax
+  102d65:	0f 87 95 00 00 00    	ja     102e00 <MATOp_test1+0xb0>
         dprintf("test 1.1 failed: (%d < VM_USERLO_PI || VM_USERHI_PI <= %d)\n", page_index, page_index);
+        dprintf("test page index: 0x%x\n", page_index);
         pfree(page_index);
         return 1;
     }
     if (at_is_norm(page_index) != 1) {
-  102ccb:	83 ec 0c             	sub    $0xc,%esp
-  102cce:	53                   	push   %ebx
-  102ccf:	e8 6c f8 ff ff       	call   102540 <at_is_norm>
-  102cd4:	83 c4 10             	add    $0x10,%esp
-  102cd7:	83 f8 01             	cmp    $0x1,%eax
-  102cda:	74 34                	je     102d10 <MATOp_test1+0x60>
+  102d6b:	83 ec 0c             	sub    $0xc,%esp
+  102d6e:	53                   	push   %ebx
+  102d6f:	e8 cc f7 ff ff       	call   102540 <at_is_norm>
+  102d74:	83 c4 10             	add    $0x10,%esp
+  102d77:	83 f8 01             	cmp    $0x1,%eax
+  102d7a:	74 3c                	je     102db8 <MATOp_test1+0x68>
         dprintf("test 1.2 failed: (%d != 1)\n", at_is_norm(page_index));
-  102cdc:	83 ec 0c             	sub    $0xc,%esp
-  102cdf:	53                   	push   %ebx
-  102ce0:	e8 5b f8 ff ff       	call   102540 <at_is_norm>
-  102ce5:	5a                   	pop    %edx
-  102ce6:	59                   	pop    %ecx
-  102ce7:	50                   	push   %eax
-  102ce8:	68 0c 47 10 00       	push   $0x10470c
-  102ced:	e8 8e e7 ff ff       	call   101480 <dprintf>
+  102d7c:	83 ec 0c             	sub    $0xc,%esp
+  102d7f:	53                   	push   %ebx
+  102d80:	e8 bb f7 ff ff       	call   102540 <at_is_norm>
+  102d85:	5a                   	pop    %edx
+  102d86:	59                   	pop    %ecx
+  102d87:	50                   	push   %eax
+  102d88:	68 53 47 10 00       	push   $0x104753
+  102d8d:	e8 ee e6 ff ff       	call   101480 <dprintf>
+        dprintf("test page index: 0x%x\n", page_index);
+  102d92:	59                   	pop    %ecx
+  102d93:	58                   	pop    %eax
+  102d94:	53                   	push   %ebx
+  102d95:	68 3c 47 10 00       	push   $0x10473c
+  102d9a:	e8 e1 e6 ff ff       	call   101480 <dprintf>
         pfree(page_index);
-  102cf2:	89 1c 24             	mov    %ebx,(%esp)
-  102cf5:	e8 96 ff ff ff       	call   102c90 <pfree>
+  102d9f:	89 1c 24             	mov    %ebx,(%esp)
+  102da2:	e8 69 ff ff ff       	call   102d10 <pfree>
         return 1;
-  102cfa:	83 c4 10             	add    $0x10,%esp
-        dprintf("test 1.4 failed: (%d != 0)\n", at_is_allocated(page_index));
+  102da7:	83 c4 10             	add    $0x10,%esp
+        dprintf("test page index: 0x%x\n", page_index);
         return 1;
     }
     dprintf("test 1 passed.\n");
     return 0;
 }
-  102cfd:	83 c4 08             	add    $0x8,%esp
+  102daa:	83 c4 08             	add    $0x8,%esp
         return 1;
-  102d00:	b8 01 00 00 00       	mov    $0x1,%eax
+  102dad:	b8 01 00 00 00       	mov    $0x1,%eax
 }
-  102d05:	5b                   	pop    %ebx
-  102d06:	c3                   	ret    
-  102d07:	8d b4 26 00 00 00 00 	lea    0x0(%esi,%eiz,1),%esi
-  102d0e:	66 90                	xchg   %ax,%ax
+  102db2:	5b                   	pop    %ebx
+  102db3:	c3                   	ret    
+  102db4:	8d 74 26 00          	lea    0x0(%esi,%eiz,1),%esi
     if (at_is_allocated(page_index) != 1) {
-  102d10:	83 ec 0c             	sub    $0xc,%esp
-  102d13:	53                   	push   %ebx
-  102d14:	e8 67 f8 ff ff       	call   102580 <at_is_allocated>
-  102d19:	83 c4 10             	add    $0x10,%esp
-  102d1c:	83 f8 01             	cmp    $0x1,%eax
-  102d1f:	75 4f                	jne    102d70 <MATOp_test1+0xc0>
+  102db8:	83 ec 0c             	sub    $0xc,%esp
+  102dbb:	53                   	push   %ebx
+  102dbc:	e8 bf f7 ff ff       	call   102580 <at_is_allocated>
+  102dc1:	83 c4 10             	add    $0x10,%esp
+  102dc4:	83 f8 01             	cmp    $0x1,%eax
+  102dc7:	75 47                	jne    102e10 <MATOp_test1+0xc0>
     pfree(page_index);
-  102d21:	83 ec 0c             	sub    $0xc,%esp
-  102d24:	53                   	push   %ebx
-  102d25:	e8 66 ff ff ff       	call   102c90 <pfree>
+  102dc9:	83 ec 0c             	sub    $0xc,%esp
+  102dcc:	53                   	push   %ebx
+  102dcd:	e8 3e ff ff ff       	call   102d10 <pfree>
     if (at_is_allocated(page_index) != 0) {
-  102d2a:	89 1c 24             	mov    %ebx,(%esp)
-  102d2d:	e8 4e f8 ff ff       	call   102580 <at_is_allocated>
-  102d32:	83 c4 10             	add    $0x10,%esp
-  102d35:	85 c0                	test   %eax,%eax
-  102d37:	75 67                	jne    102da0 <MATOp_test1+0xf0>
+  102dd2:	89 1c 24             	mov    %ebx,(%esp)
+  102dd5:	e8 a6 f7 ff ff       	call   102580 <at_is_allocated>
+  102dda:	83 c4 10             	add    $0x10,%esp
+  102ddd:	85 c0                	test   %eax,%eax
+  102ddf:	75 4f                	jne    102e30 <MATOp_test1+0xe0>
     dprintf("test 1 passed.\n");
-  102d39:	83 ec 0c             	sub    $0xc,%esp
-  102d3c:	68 db 45 10 00       	push   $0x1045db
-  102d41:	e8 3a e7 ff ff       	call   101480 <dprintf>
+  102de1:	83 ec 0c             	sub    $0xc,%esp
+  102de4:	68 db 45 10 00       	push   $0x1045db
+  102de9:	e8 92 e6 ff ff       	call   101480 <dprintf>
     return 0;
-  102d46:	83 c4 10             	add    $0x10,%esp
-  102d49:	31 c0                	xor    %eax,%eax
+  102dee:	83 c4 10             	add    $0x10,%esp
+  102df1:	31 c0                	xor    %eax,%eax
 }
-  102d4b:	83 c4 08             	add    $0x8,%esp
-  102d4e:	5b                   	pop    %ebx
-  102d4f:	c3                   	ret    
+  102df3:	83 c4 08             	add    $0x8,%esp
+  102df6:	5b                   	pop    %ebx
+  102df7:	c3                   	ret    
+  102df8:	8d b4 26 00 00 00 00 	lea    0x0(%esi,%eiz,1),%esi
+  102dff:	90                   	nop
         dprintf("test 1.1 failed: (%d < VM_USERLO_PI || VM_USERHI_PI <= %d)\n", page_index, page_index);
-  102d50:	83 ec 04             	sub    $0x4,%esp
-  102d53:	53                   	push   %ebx
-  102d54:	53                   	push   %ebx
-  102d55:	68 d0 46 10 00       	push   $0x1046d0
-  102d5a:	e8 21 e7 ff ff       	call   101480 <dprintf>
-        pfree(page_index);
-  102d5f:	89 1c 24             	mov    %ebx,(%esp)
-  102d62:	e8 29 ff ff ff       	call   102c90 <pfree>
-        return 1;
-  102d67:	83 c4 10             	add    $0x10,%esp
-  102d6a:	eb 91                	jmp    102cfd <MATOp_test1+0x4d>
-  102d6c:	8d 74 26 00          	lea    0x0(%esi,%eiz,1),%esi
+  102e00:	83 ec 04             	sub    $0x4,%esp
+  102e03:	53                   	push   %ebx
+  102e04:	53                   	push   %ebx
+  102e05:	68 00 47 10 00       	push   $0x104700
+  102e0a:	eb 81                	jmp    102d8d <MATOp_test1+0x3d>
+  102e0c:	8d 74 26 00          	lea    0x0(%esi,%eiz,1),%esi
         dprintf("test 1.3 failed: (%d != 1)\n", at_is_allocated(page_index));
-  102d70:	83 ec 0c             	sub    $0xc,%esp
-  102d73:	53                   	push   %ebx
-  102d74:	e8 07 f8 ff ff       	call   102580 <at_is_allocated>
-  102d79:	5a                   	pop    %edx
-  102d7a:	59                   	pop    %ecx
-  102d7b:	50                   	push   %eax
-  102d7c:	68 28 47 10 00       	push   $0x104728
-  102d81:	e8 fa e6 ff ff       	call   101480 <dprintf>
-        pfree(page_index);
-  102d86:	89 1c 24             	mov    %ebx,(%esp)
-  102d89:	e8 02 ff ff ff       	call   102c90 <pfree>
-        return 1;
-  102d8e:	83 c4 10             	add    $0x10,%esp
-  102d91:	e9 67 ff ff ff       	jmp    102cfd <MATOp_test1+0x4d>
-  102d96:	8d b4 26 00 00 00 00 	lea    0x0(%esi,%eiz,1),%esi
-  102d9d:	8d 76 00             	lea    0x0(%esi),%esi
+  102e10:	83 ec 0c             	sub    $0xc,%esp
+  102e13:	53                   	push   %ebx
+  102e14:	e8 67 f7 ff ff       	call   102580 <at_is_allocated>
+  102e19:	59                   	pop    %ecx
+  102e1a:	5a                   	pop    %edx
+  102e1b:	50                   	push   %eax
+  102e1c:	68 6f 47 10 00       	push   $0x10476f
+  102e21:	e9 67 ff ff ff       	jmp    102d8d <MATOp_test1+0x3d>
+  102e26:	8d b4 26 00 00 00 00 	lea    0x0(%esi,%eiz,1),%esi
+  102e2d:	8d 76 00             	lea    0x0(%esi),%esi
         dprintf("test 1.4 failed: (%d != 0)\n", at_is_allocated(page_index));
-  102da0:	83 ec 0c             	sub    $0xc,%esp
-  102da3:	53                   	push   %ebx
-  102da4:	e8 d7 f7 ff ff       	call   102580 <at_is_allocated>
-  102da9:	5a                   	pop    %edx
-  102daa:	59                   	pop    %ecx
-  102dab:	50                   	push   %eax
-  102dac:	68 44 47 10 00       	push   $0x104744
-  102db1:	e8 ca e6 ff ff       	call   101480 <dprintf>
+  102e30:	83 ec 0c             	sub    $0xc,%esp
+  102e33:	53                   	push   %ebx
+  102e34:	e8 47 f7 ff ff       	call   102580 <at_is_allocated>
+  102e39:	5a                   	pop    %edx
+  102e3a:	59                   	pop    %ecx
+  102e3b:	50                   	push   %eax
+  102e3c:	68 8b 47 10 00       	push   $0x10478b
+  102e41:	e8 3a e6 ff ff       	call   101480 <dprintf>
+        dprintf("test page index: 0x%x\n", page_index);
+  102e46:	58                   	pop    %eax
+  102e47:	5a                   	pop    %edx
+  102e48:	53                   	push   %ebx
+  102e49:	68 3c 47 10 00       	push   $0x10473c
+  102e4e:	e8 2d e6 ff ff       	call   101480 <dprintf>
         return 1;
-  102db6:	83 c4 10             	add    $0x10,%esp
-  102db9:	e9 3f ff ff ff       	jmp    102cfd <MATOp_test1+0x4d>
-  102dbe:	66 90                	xchg   %ax,%ax
+  102e53:	83 c4 10             	add    $0x10,%esp
+  102e56:	e9 4f ff ff ff       	jmp    102daa <MATOp_test1+0x5a>
+  102e5b:	8d 74 26 00          	lea    0x0(%esi,%eiz,1),%esi
+  102e5f:	90                   	nop
 
-00102dc0 <MATOp_test_own>:
+00102e60 <MATOp_test_own>:
 int MATOp_test_own()
 {
     // TODO (optional)
     // dprintf("own test passed.\n");
     return 0;
 }
-  102dc0:	31 c0                	xor    %eax,%eax
-  102dc2:	c3                   	ret    
-  102dc3:	8d b4 26 00 00 00 00 	lea    0x0(%esi,%eiz,1),%esi
-  102dca:	8d b6 00 00 00 00    	lea    0x0(%esi),%esi
+  102e60:	31 c0                	xor    %eax,%eax
+  102e62:	c3                   	ret    
+  102e63:	8d b4 26 00 00 00 00 	lea    0x0(%esi,%eiz,1),%esi
+  102e6a:	8d b6 00 00 00 00    	lea    0x0(%esi),%esi
 
-00102dd0 <test_MATOp>:
+00102e70 <test_MATOp>:
 
 int test_MATOp()
 {
     return MATOp_test1() + MATOp_test_own();
-  102dd0:	e9 db fe ff ff       	jmp    102cb0 <MATOp_test1>
-  102dd5:	66 90                	xchg   %ax,%ax
-  102dd7:	66 90                	xchg   %ax,%ax
-  102dd9:	66 90                	xchg   %ax,%ax
-  102ddb:	66 90                	xchg   %ax,%ax
-  102ddd:	66 90                	xchg   %ax,%ax
-  102ddf:	90                   	nop
+  102e70:	e9 db fe ff ff       	jmp    102d50 <MATOp_test1>
+  102e75:	66 90                	xchg   %ax,%ax
+  102e77:	66 90                	xchg   %ax,%ax
+  102e79:	66 90                	xchg   %ax,%ax
+  102e7b:	66 90                	xchg   %ax,%ax
+  102e7d:	66 90                	xchg   %ax,%ax
+  102e7f:	90                   	nop
 
-00102de0 <__udivdi3>:
-  102de0:	f3 0f 1e fb          	endbr32 
-  102de4:	55                   	push   %ebp
-  102de5:	57                   	push   %edi
-  102de6:	56                   	push   %esi
-  102de7:	53                   	push   %ebx
-  102de8:	83 ec 1c             	sub    $0x1c,%esp
-  102deb:	8b 44 24 3c          	mov    0x3c(%esp),%eax
-  102def:	8b 6c 24 30          	mov    0x30(%esp),%ebp
-  102df3:	8b 74 24 34          	mov    0x34(%esp),%esi
-  102df7:	8b 5c 24 38          	mov    0x38(%esp),%ebx
-  102dfb:	85 c0                	test   %eax,%eax
-  102dfd:	75 19                	jne    102e18 <__udivdi3+0x38>
-  102dff:	39 de                	cmp    %ebx,%esi
-  102e01:	73 4d                	jae    102e50 <__udivdi3+0x70>
-  102e03:	31 ff                	xor    %edi,%edi
-  102e05:	89 e8                	mov    %ebp,%eax
-  102e07:	89 f2                	mov    %esi,%edx
-  102e09:	f7 f3                	div    %ebx
-  102e0b:	89 fa                	mov    %edi,%edx
-  102e0d:	83 c4 1c             	add    $0x1c,%esp
-  102e10:	5b                   	pop    %ebx
-  102e11:	5e                   	pop    %esi
-  102e12:	5f                   	pop    %edi
-  102e13:	5d                   	pop    %ebp
-  102e14:	c3                   	ret    
-  102e15:	8d 76 00             	lea    0x0(%esi),%esi
-  102e18:	39 c6                	cmp    %eax,%esi
-  102e1a:	73 14                	jae    102e30 <__udivdi3+0x50>
-  102e1c:	31 ff                	xor    %edi,%edi
-  102e1e:	31 c0                	xor    %eax,%eax
-  102e20:	89 fa                	mov    %edi,%edx
-  102e22:	83 c4 1c             	add    $0x1c,%esp
-  102e25:	5b                   	pop    %ebx
-  102e26:	5e                   	pop    %esi
-  102e27:	5f                   	pop    %edi
-  102e28:	5d                   	pop    %ebp
-  102e29:	c3                   	ret    
-  102e2a:	8d b6 00 00 00 00    	lea    0x0(%esi),%esi
-  102e30:	0f bd f8             	bsr    %eax,%edi
-  102e33:	83 f7 1f             	xor    $0x1f,%edi
-  102e36:	75 48                	jne    102e80 <__udivdi3+0xa0>
-  102e38:	39 f0                	cmp    %esi,%eax
-  102e3a:	72 06                	jb     102e42 <__udivdi3+0x62>
-  102e3c:	31 c0                	xor    %eax,%eax
-  102e3e:	39 dd                	cmp    %ebx,%ebp
-  102e40:	72 de                	jb     102e20 <__udivdi3+0x40>
-  102e42:	b8 01 00 00 00       	mov    $0x1,%eax
-  102e47:	eb d7                	jmp    102e20 <__udivdi3+0x40>
-  102e49:	8d b4 26 00 00 00 00 	lea    0x0(%esi,%eiz,1),%esi
-  102e50:	89 d9                	mov    %ebx,%ecx
-  102e52:	85 db                	test   %ebx,%ebx
-  102e54:	75 0b                	jne    102e61 <__udivdi3+0x81>
-  102e56:	b8 01 00 00 00       	mov    $0x1,%eax
-  102e5b:	31 d2                	xor    %edx,%edx
-  102e5d:	f7 f3                	div    %ebx
-  102e5f:	89 c1                	mov    %eax,%ecx
-  102e61:	31 d2                	xor    %edx,%edx
-  102e63:	89 f0                	mov    %esi,%eax
-  102e65:	f7 f1                	div    %ecx
-  102e67:	89 c6                	mov    %eax,%esi
-  102e69:	89 e8                	mov    %ebp,%eax
-  102e6b:	89 f7                	mov    %esi,%edi
-  102e6d:	f7 f1                	div    %ecx
-  102e6f:	89 fa                	mov    %edi,%edx
-  102e71:	83 c4 1c             	add    $0x1c,%esp
-  102e74:	5b                   	pop    %ebx
-  102e75:	5e                   	pop    %esi
-  102e76:	5f                   	pop    %edi
-  102e77:	5d                   	pop    %ebp
-  102e78:	c3                   	ret    
-  102e79:	8d b4 26 00 00 00 00 	lea    0x0(%esi,%eiz,1),%esi
-  102e80:	89 f9                	mov    %edi,%ecx
-  102e82:	ba 20 00 00 00       	mov    $0x20,%edx
-  102e87:	29 fa                	sub    %edi,%edx
-  102e89:	d3 e0                	shl    %cl,%eax
-  102e8b:	89 44 24 08          	mov    %eax,0x8(%esp)
-  102e8f:	89 d1                	mov    %edx,%ecx
-  102e91:	89 d8                	mov    %ebx,%eax
-  102e93:	d3 e8                	shr    %cl,%eax
-  102e95:	89 c1                	mov    %eax,%ecx
-  102e97:	8b 44 24 08          	mov    0x8(%esp),%eax
-  102e9b:	09 c1                	or     %eax,%ecx
-  102e9d:	89 f0                	mov    %esi,%eax
-  102e9f:	89 4c 24 08          	mov    %ecx,0x8(%esp)
-  102ea3:	89 f9                	mov    %edi,%ecx
-  102ea5:	d3 e3                	shl    %cl,%ebx
-  102ea7:	89 d1                	mov    %edx,%ecx
-  102ea9:	d3 e8                	shr    %cl,%eax
-  102eab:	89 f9                	mov    %edi,%ecx
-  102ead:	89 5c 24 0c          	mov    %ebx,0xc(%esp)
-  102eb1:	89 eb                	mov    %ebp,%ebx
-  102eb3:	d3 e6                	shl    %cl,%esi
-  102eb5:	89 d1                	mov    %edx,%ecx
-  102eb7:	d3 eb                	shr    %cl,%ebx
-  102eb9:	09 f3                	or     %esi,%ebx
-  102ebb:	89 c6                	mov    %eax,%esi
-  102ebd:	89 f2                	mov    %esi,%edx
-  102ebf:	89 d8                	mov    %ebx,%eax
-  102ec1:	f7 74 24 08          	divl   0x8(%esp)
-  102ec5:	89 d6                	mov    %edx,%esi
-  102ec7:	89 c3                	mov    %eax,%ebx
-  102ec9:	f7 64 24 0c          	mull   0xc(%esp)
-  102ecd:	39 d6                	cmp    %edx,%esi
-  102ecf:	72 1f                	jb     102ef0 <__udivdi3+0x110>
-  102ed1:	89 f9                	mov    %edi,%ecx
-  102ed3:	d3 e5                	shl    %cl,%ebp
-  102ed5:	39 c5                	cmp    %eax,%ebp
-  102ed7:	73 04                	jae    102edd <__udivdi3+0xfd>
-  102ed9:	39 d6                	cmp    %edx,%esi
-  102edb:	74 13                	je     102ef0 <__udivdi3+0x110>
-  102edd:	89 d8                	mov    %ebx,%eax
-  102edf:	31 ff                	xor    %edi,%edi
-  102ee1:	e9 3a ff ff ff       	jmp    102e20 <__udivdi3+0x40>
-  102ee6:	8d b4 26 00 00 00 00 	lea    0x0(%esi,%eiz,1),%esi
-  102eed:	8d 76 00             	lea    0x0(%esi),%esi
-  102ef0:	8d 43 ff             	lea    -0x1(%ebx),%eax
-  102ef3:	31 ff                	xor    %edi,%edi
-  102ef5:	e9 26 ff ff ff       	jmp    102e20 <__udivdi3+0x40>
-  102efa:	66 90                	xchg   %ax,%ax
-  102efc:	66 90                	xchg   %ax,%ax
-  102efe:	66 90                	xchg   %ax,%ax
+00102e80 <__udivdi3>:
+  102e80:	f3 0f 1e fb          	endbr32 
+  102e84:	55                   	push   %ebp
+  102e85:	57                   	push   %edi
+  102e86:	56                   	push   %esi
+  102e87:	53                   	push   %ebx
+  102e88:	83 ec 1c             	sub    $0x1c,%esp
+  102e8b:	8b 44 24 3c          	mov    0x3c(%esp),%eax
+  102e8f:	8b 6c 24 30          	mov    0x30(%esp),%ebp
+  102e93:	8b 74 24 34          	mov    0x34(%esp),%esi
+  102e97:	8b 5c 24 38          	mov    0x38(%esp),%ebx
+  102e9b:	85 c0                	test   %eax,%eax
+  102e9d:	75 19                	jne    102eb8 <__udivdi3+0x38>
+  102e9f:	39 de                	cmp    %ebx,%esi
+  102ea1:	73 4d                	jae    102ef0 <__udivdi3+0x70>
+  102ea3:	31 ff                	xor    %edi,%edi
+  102ea5:	89 e8                	mov    %ebp,%eax
+  102ea7:	89 f2                	mov    %esi,%edx
+  102ea9:	f7 f3                	div    %ebx
+  102eab:	89 fa                	mov    %edi,%edx
+  102ead:	83 c4 1c             	add    $0x1c,%esp
+  102eb0:	5b                   	pop    %ebx
+  102eb1:	5e                   	pop    %esi
+  102eb2:	5f                   	pop    %edi
+  102eb3:	5d                   	pop    %ebp
+  102eb4:	c3                   	ret    
+  102eb5:	8d 76 00             	lea    0x0(%esi),%esi
+  102eb8:	39 c6                	cmp    %eax,%esi
+  102eba:	73 14                	jae    102ed0 <__udivdi3+0x50>
+  102ebc:	31 ff                	xor    %edi,%edi
+  102ebe:	31 c0                	xor    %eax,%eax
+  102ec0:	89 fa                	mov    %edi,%edx
+  102ec2:	83 c4 1c             	add    $0x1c,%esp
+  102ec5:	5b                   	pop    %ebx
+  102ec6:	5e                   	pop    %esi
+  102ec7:	5f                   	pop    %edi
+  102ec8:	5d                   	pop    %ebp
+  102ec9:	c3                   	ret    
+  102eca:	8d b6 00 00 00 00    	lea    0x0(%esi),%esi
+  102ed0:	0f bd f8             	bsr    %eax,%edi
+  102ed3:	83 f7 1f             	xor    $0x1f,%edi
+  102ed6:	75 48                	jne    102f20 <__udivdi3+0xa0>
+  102ed8:	39 f0                	cmp    %esi,%eax
+  102eda:	72 06                	jb     102ee2 <__udivdi3+0x62>
+  102edc:	31 c0                	xor    %eax,%eax
+  102ede:	39 dd                	cmp    %ebx,%ebp
+  102ee0:	72 de                	jb     102ec0 <__udivdi3+0x40>
+  102ee2:	b8 01 00 00 00       	mov    $0x1,%eax
+  102ee7:	eb d7                	jmp    102ec0 <__udivdi3+0x40>
+  102ee9:	8d b4 26 00 00 00 00 	lea    0x0(%esi,%eiz,1),%esi
+  102ef0:	89 d9                	mov    %ebx,%ecx
+  102ef2:	85 db                	test   %ebx,%ebx
+  102ef4:	75 0b                	jne    102f01 <__udivdi3+0x81>
+  102ef6:	b8 01 00 00 00       	mov    $0x1,%eax
+  102efb:	31 d2                	xor    %edx,%edx
+  102efd:	f7 f3                	div    %ebx
+  102eff:	89 c1                	mov    %eax,%ecx
+  102f01:	31 d2                	xor    %edx,%edx
+  102f03:	89 f0                	mov    %esi,%eax
+  102f05:	f7 f1                	div    %ecx
+  102f07:	89 c6                	mov    %eax,%esi
+  102f09:	89 e8                	mov    %ebp,%eax
+  102f0b:	89 f7                	mov    %esi,%edi
+  102f0d:	f7 f1                	div    %ecx
+  102f0f:	89 fa                	mov    %edi,%edx
+  102f11:	83 c4 1c             	add    $0x1c,%esp
+  102f14:	5b                   	pop    %ebx
+  102f15:	5e                   	pop    %esi
+  102f16:	5f                   	pop    %edi
+  102f17:	5d                   	pop    %ebp
+  102f18:	c3                   	ret    
+  102f19:	8d b4 26 00 00 00 00 	lea    0x0(%esi,%eiz,1),%esi
+  102f20:	89 f9                	mov    %edi,%ecx
+  102f22:	ba 20 00 00 00       	mov    $0x20,%edx
+  102f27:	29 fa                	sub    %edi,%edx
+  102f29:	d3 e0                	shl    %cl,%eax
+  102f2b:	89 44 24 08          	mov    %eax,0x8(%esp)
+  102f2f:	89 d1                	mov    %edx,%ecx
+  102f31:	89 d8                	mov    %ebx,%eax
+  102f33:	d3 e8                	shr    %cl,%eax
+  102f35:	89 c1                	mov    %eax,%ecx
+  102f37:	8b 44 24 08          	mov    0x8(%esp),%eax
+  102f3b:	09 c1                	or     %eax,%ecx
+  102f3d:	89 f0                	mov    %esi,%eax
+  102f3f:	89 4c 24 08          	mov    %ecx,0x8(%esp)
+  102f43:	89 f9                	mov    %edi,%ecx
+  102f45:	d3 e3                	shl    %cl,%ebx
+  102f47:	89 d1                	mov    %edx,%ecx
+  102f49:	d3 e8                	shr    %cl,%eax
+  102f4b:	89 f9                	mov    %edi,%ecx
+  102f4d:	89 5c 24 0c          	mov    %ebx,0xc(%esp)
+  102f51:	89 eb                	mov    %ebp,%ebx
+  102f53:	d3 e6                	shl    %cl,%esi
+  102f55:	89 d1                	mov    %edx,%ecx
+  102f57:	d3 eb                	shr    %cl,%ebx
+  102f59:	09 f3                	or     %esi,%ebx
+  102f5b:	89 c6                	mov    %eax,%esi
+  102f5d:	89 f2                	mov    %esi,%edx
+  102f5f:	89 d8                	mov    %ebx,%eax
+  102f61:	f7 74 24 08          	divl   0x8(%esp)
+  102f65:	89 d6                	mov    %edx,%esi
+  102f67:	89 c3                	mov    %eax,%ebx
+  102f69:	f7 64 24 0c          	mull   0xc(%esp)
+  102f6d:	39 d6                	cmp    %edx,%esi
+  102f6f:	72 1f                	jb     102f90 <__udivdi3+0x110>
+  102f71:	89 f9                	mov    %edi,%ecx
+  102f73:	d3 e5                	shl    %cl,%ebp
+  102f75:	39 c5                	cmp    %eax,%ebp
+  102f77:	73 04                	jae    102f7d <__udivdi3+0xfd>
+  102f79:	39 d6                	cmp    %edx,%esi
+  102f7b:	74 13                	je     102f90 <__udivdi3+0x110>
+  102f7d:	89 d8                	mov    %ebx,%eax
+  102f7f:	31 ff                	xor    %edi,%edi
+  102f81:	e9 3a ff ff ff       	jmp    102ec0 <__udivdi3+0x40>
+  102f86:	8d b4 26 00 00 00 00 	lea    0x0(%esi,%eiz,1),%esi
+  102f8d:	8d 76 00             	lea    0x0(%esi),%esi
+  102f90:	8d 43 ff             	lea    -0x1(%ebx),%eax
+  102f93:	31 ff                	xor    %edi,%edi
+  102f95:	e9 26 ff ff ff       	jmp    102ec0 <__udivdi3+0x40>
+  102f9a:	66 90                	xchg   %ax,%ax
+  102f9c:	66 90                	xchg   %ax,%ax
+  102f9e:	66 90                	xchg   %ax,%ax
 
-00102f00 <__umoddi3>:
-  102f00:	f3 0f 1e fb          	endbr32 
-  102f04:	55                   	push   %ebp
-  102f05:	57                   	push   %edi
-  102f06:	56                   	push   %esi
-  102f07:	53                   	push   %ebx
-  102f08:	83 ec 1c             	sub    $0x1c,%esp
-  102f0b:	8b 5c 24 34          	mov    0x34(%esp),%ebx
-  102f0f:	8b 44 24 3c          	mov    0x3c(%esp),%eax
-  102f13:	8b 74 24 30          	mov    0x30(%esp),%esi
-  102f17:	8b 7c 24 38          	mov    0x38(%esp),%edi
-  102f1b:	89 da                	mov    %ebx,%edx
-  102f1d:	85 c0                	test   %eax,%eax
-  102f1f:	75 17                	jne    102f38 <__umoddi3+0x38>
-  102f21:	39 fb                	cmp    %edi,%ebx
-  102f23:	73 53                	jae    102f78 <__umoddi3+0x78>
-  102f25:	89 f0                	mov    %esi,%eax
-  102f27:	f7 f7                	div    %edi
-  102f29:	89 d0                	mov    %edx,%eax
-  102f2b:	31 d2                	xor    %edx,%edx
-  102f2d:	83 c4 1c             	add    $0x1c,%esp
-  102f30:	5b                   	pop    %ebx
-  102f31:	5e                   	pop    %esi
-  102f32:	5f                   	pop    %edi
-  102f33:	5d                   	pop    %ebp
-  102f34:	c3                   	ret    
-  102f35:	8d 76 00             	lea    0x0(%esi),%esi
-  102f38:	89 f1                	mov    %esi,%ecx
-  102f3a:	39 c3                	cmp    %eax,%ebx
-  102f3c:	73 12                	jae    102f50 <__umoddi3+0x50>
-  102f3e:	89 f0                	mov    %esi,%eax
-  102f40:	83 c4 1c             	add    $0x1c,%esp
-  102f43:	5b                   	pop    %ebx
-  102f44:	5e                   	pop    %esi
-  102f45:	5f                   	pop    %edi
-  102f46:	5d                   	pop    %ebp
-  102f47:	c3                   	ret    
-  102f48:	8d b4 26 00 00 00 00 	lea    0x0(%esi,%eiz,1),%esi
-  102f4f:	90                   	nop
-  102f50:	0f bd e8             	bsr    %eax,%ebp
-  102f53:	83 f5 1f             	xor    $0x1f,%ebp
-  102f56:	75 48                	jne    102fa0 <__umoddi3+0xa0>
-  102f58:	39 d8                	cmp    %ebx,%eax
-  102f5a:	0f 82 d0 00 00 00    	jb     103030 <__umoddi3+0x130>
-  102f60:	39 fe                	cmp    %edi,%esi
-  102f62:	0f 83 c8 00 00 00    	jae    103030 <__umoddi3+0x130>
-  102f68:	89 c8                	mov    %ecx,%eax
-  102f6a:	83 c4 1c             	add    $0x1c,%esp
-  102f6d:	5b                   	pop    %ebx
-  102f6e:	5e                   	pop    %esi
-  102f6f:	5f                   	pop    %edi
-  102f70:	5d                   	pop    %ebp
-  102f71:	c3                   	ret    
-  102f72:	8d b6 00 00 00 00    	lea    0x0(%esi),%esi
-  102f78:	89 f9                	mov    %edi,%ecx
-  102f7a:	85 ff                	test   %edi,%edi
-  102f7c:	75 0b                	jne    102f89 <__umoddi3+0x89>
-  102f7e:	b8 01 00 00 00       	mov    $0x1,%eax
-  102f83:	31 d2                	xor    %edx,%edx
-  102f85:	f7 f7                	div    %edi
-  102f87:	89 c1                	mov    %eax,%ecx
-  102f89:	89 d8                	mov    %ebx,%eax
-  102f8b:	31 d2                	xor    %edx,%edx
-  102f8d:	f7 f1                	div    %ecx
-  102f8f:	89 f0                	mov    %esi,%eax
-  102f91:	f7 f1                	div    %ecx
-  102f93:	89 d0                	mov    %edx,%eax
-  102f95:	31 d2                	xor    %edx,%edx
-  102f97:	eb 94                	jmp    102f2d <__umoddi3+0x2d>
-  102f99:	8d b4 26 00 00 00 00 	lea    0x0(%esi,%eiz,1),%esi
-  102fa0:	89 e9                	mov    %ebp,%ecx
-  102fa2:	ba 20 00 00 00       	mov    $0x20,%edx
-  102fa7:	29 ea                	sub    %ebp,%edx
-  102fa9:	d3 e0                	shl    %cl,%eax
-  102fab:	89 44 24 08          	mov    %eax,0x8(%esp)
-  102faf:	89 d1                	mov    %edx,%ecx
-  102fb1:	89 f8                	mov    %edi,%eax
-  102fb3:	d3 e8                	shr    %cl,%eax
-  102fb5:	89 54 24 04          	mov    %edx,0x4(%esp)
-  102fb9:	8b 54 24 04          	mov    0x4(%esp),%edx
-  102fbd:	89 c1                	mov    %eax,%ecx
-  102fbf:	8b 44 24 08          	mov    0x8(%esp),%eax
-  102fc3:	09 c1                	or     %eax,%ecx
-  102fc5:	89 d8                	mov    %ebx,%eax
-  102fc7:	89 4c 24 08          	mov    %ecx,0x8(%esp)
-  102fcb:	89 e9                	mov    %ebp,%ecx
-  102fcd:	d3 e7                	shl    %cl,%edi
-  102fcf:	89 d1                	mov    %edx,%ecx
-  102fd1:	d3 e8                	shr    %cl,%eax
-  102fd3:	89 e9                	mov    %ebp,%ecx
-  102fd5:	89 7c 24 0c          	mov    %edi,0xc(%esp)
-  102fd9:	d3 e3                	shl    %cl,%ebx
-  102fdb:	89 c7                	mov    %eax,%edi
-  102fdd:	89 d1                	mov    %edx,%ecx
-  102fdf:	89 f0                	mov    %esi,%eax
-  102fe1:	d3 e8                	shr    %cl,%eax
-  102fe3:	89 fa                	mov    %edi,%edx
-  102fe5:	89 e9                	mov    %ebp,%ecx
-  102fe7:	09 d8                	or     %ebx,%eax
-  102fe9:	d3 e6                	shl    %cl,%esi
-  102feb:	f7 74 24 08          	divl   0x8(%esp)
-  102fef:	89 d3                	mov    %edx,%ebx
-  102ff1:	f7 64 24 0c          	mull   0xc(%esp)
-  102ff5:	89 c7                	mov    %eax,%edi
-  102ff7:	89 d1                	mov    %edx,%ecx
-  102ff9:	39 d3                	cmp    %edx,%ebx
-  102ffb:	72 06                	jb     103003 <__umoddi3+0x103>
-  102ffd:	75 10                	jne    10300f <__umoddi3+0x10f>
-  102fff:	39 c6                	cmp    %eax,%esi
-  103001:	73 0c                	jae    10300f <__umoddi3+0x10f>
-  103003:	2b 44 24 0c          	sub    0xc(%esp),%eax
-  103007:	1b 54 24 08          	sbb    0x8(%esp),%edx
-  10300b:	89 d1                	mov    %edx,%ecx
-  10300d:	89 c7                	mov    %eax,%edi
-  10300f:	89 f2                	mov    %esi,%edx
-  103011:	29 fa                	sub    %edi,%edx
-  103013:	19 cb                	sbb    %ecx,%ebx
-  103015:	0f b6 4c 24 04       	movzbl 0x4(%esp),%ecx
-  10301a:	89 d8                	mov    %ebx,%eax
-  10301c:	d3 e0                	shl    %cl,%eax
-  10301e:	89 e9                	mov    %ebp,%ecx
-  103020:	d3 ea                	shr    %cl,%edx
-  103022:	d3 eb                	shr    %cl,%ebx
-  103024:	09 d0                	or     %edx,%eax
-  103026:	89 da                	mov    %ebx,%edx
-  103028:	83 c4 1c             	add    $0x1c,%esp
-  10302b:	5b                   	pop    %ebx
-  10302c:	5e                   	pop    %esi
-  10302d:	5f                   	pop    %edi
-  10302e:	5d                   	pop    %ebp
-  10302f:	c3                   	ret    
-  103030:	89 da                	mov    %ebx,%edx
-  103032:	89 f1                	mov    %esi,%ecx
-  103034:	29 f9                	sub    %edi,%ecx
-  103036:	19 c2                	sbb    %eax,%edx
-  103038:	89 c8                	mov    %ecx,%eax
-  10303a:	e9 2b ff ff ff       	jmp    102f6a <__umoddi3+0x6a>
+00102fa0 <__umoddi3>:
+  102fa0:	f3 0f 1e fb          	endbr32 
+  102fa4:	55                   	push   %ebp
+  102fa5:	57                   	push   %edi
+  102fa6:	56                   	push   %esi
+  102fa7:	53                   	push   %ebx
+  102fa8:	83 ec 1c             	sub    $0x1c,%esp
+  102fab:	8b 5c 24 34          	mov    0x34(%esp),%ebx
+  102faf:	8b 44 24 3c          	mov    0x3c(%esp),%eax
+  102fb3:	8b 74 24 30          	mov    0x30(%esp),%esi
+  102fb7:	8b 7c 24 38          	mov    0x38(%esp),%edi
+  102fbb:	89 da                	mov    %ebx,%edx
+  102fbd:	85 c0                	test   %eax,%eax
+  102fbf:	75 17                	jne    102fd8 <__umoddi3+0x38>
+  102fc1:	39 fb                	cmp    %edi,%ebx
+  102fc3:	73 53                	jae    103018 <__umoddi3+0x78>
+  102fc5:	89 f0                	mov    %esi,%eax
+  102fc7:	f7 f7                	div    %edi
+  102fc9:	89 d0                	mov    %edx,%eax
+  102fcb:	31 d2                	xor    %edx,%edx
+  102fcd:	83 c4 1c             	add    $0x1c,%esp
+  102fd0:	5b                   	pop    %ebx
+  102fd1:	5e                   	pop    %esi
+  102fd2:	5f                   	pop    %edi
+  102fd3:	5d                   	pop    %ebp
+  102fd4:	c3                   	ret    
+  102fd5:	8d 76 00             	lea    0x0(%esi),%esi
+  102fd8:	89 f1                	mov    %esi,%ecx
+  102fda:	39 c3                	cmp    %eax,%ebx
+  102fdc:	73 12                	jae    102ff0 <__umoddi3+0x50>
+  102fde:	89 f0                	mov    %esi,%eax
+  102fe0:	83 c4 1c             	add    $0x1c,%esp
+  102fe3:	5b                   	pop    %ebx
+  102fe4:	5e                   	pop    %esi
+  102fe5:	5f                   	pop    %edi
+  102fe6:	5d                   	pop    %ebp
+  102fe7:	c3                   	ret    
+  102fe8:	8d b4 26 00 00 00 00 	lea    0x0(%esi,%eiz,1),%esi
+  102fef:	90                   	nop
+  102ff0:	0f bd e8             	bsr    %eax,%ebp
+  102ff3:	83 f5 1f             	xor    $0x1f,%ebp
+  102ff6:	75 48                	jne    103040 <__umoddi3+0xa0>
+  102ff8:	39 d8                	cmp    %ebx,%eax
+  102ffa:	0f 82 d0 00 00 00    	jb     1030d0 <__umoddi3+0x130>
+  103000:	39 fe                	cmp    %edi,%esi
+  103002:	0f 83 c8 00 00 00    	jae    1030d0 <__umoddi3+0x130>
+  103008:	89 c8                	mov    %ecx,%eax
+  10300a:	83 c4 1c             	add    $0x1c,%esp
+  10300d:	5b                   	pop    %ebx
+  10300e:	5e                   	pop    %esi
+  10300f:	5f                   	pop    %edi
+  103010:	5d                   	pop    %ebp
+  103011:	c3                   	ret    
+  103012:	8d b6 00 00 00 00    	lea    0x0(%esi),%esi
+  103018:	89 f9                	mov    %edi,%ecx
+  10301a:	85 ff                	test   %edi,%edi
+  10301c:	75 0b                	jne    103029 <__umoddi3+0x89>
+  10301e:	b8 01 00 00 00       	mov    $0x1,%eax
+  103023:	31 d2                	xor    %edx,%edx
+  103025:	f7 f7                	div    %edi
+  103027:	89 c1                	mov    %eax,%ecx
+  103029:	89 d8                	mov    %ebx,%eax
+  10302b:	31 d2                	xor    %edx,%edx
+  10302d:	f7 f1                	div    %ecx
+  10302f:	89 f0                	mov    %esi,%eax
+  103031:	f7 f1                	div    %ecx
+  103033:	89 d0                	mov    %edx,%eax
+  103035:	31 d2                	xor    %edx,%edx
+  103037:	eb 94                	jmp    102fcd <__umoddi3+0x2d>
+  103039:	8d b4 26 00 00 00 00 	lea    0x0(%esi,%eiz,1),%esi
+  103040:	89 e9                	mov    %ebp,%ecx
+  103042:	ba 20 00 00 00       	mov    $0x20,%edx
+  103047:	29 ea                	sub    %ebp,%edx
+  103049:	d3 e0                	shl    %cl,%eax
+  10304b:	89 44 24 08          	mov    %eax,0x8(%esp)
+  10304f:	89 d1                	mov    %edx,%ecx
+  103051:	89 f8                	mov    %edi,%eax
+  103053:	d3 e8                	shr    %cl,%eax
+  103055:	89 54 24 04          	mov    %edx,0x4(%esp)
+  103059:	8b 54 24 04          	mov    0x4(%esp),%edx
+  10305d:	89 c1                	mov    %eax,%ecx
+  10305f:	8b 44 24 08          	mov    0x8(%esp),%eax
+  103063:	09 c1                	or     %eax,%ecx
+  103065:	89 d8                	mov    %ebx,%eax
+  103067:	89 4c 24 08          	mov    %ecx,0x8(%esp)
+  10306b:	89 e9                	mov    %ebp,%ecx
+  10306d:	d3 e7                	shl    %cl,%edi
+  10306f:	89 d1                	mov    %edx,%ecx
+  103071:	d3 e8                	shr    %cl,%eax
+  103073:	89 e9                	mov    %ebp,%ecx
+  103075:	89 7c 24 0c          	mov    %edi,0xc(%esp)
+  103079:	d3 e3                	shl    %cl,%ebx
+  10307b:	89 c7                	mov    %eax,%edi
+  10307d:	89 d1                	mov    %edx,%ecx
+  10307f:	89 f0                	mov    %esi,%eax
+  103081:	d3 e8                	shr    %cl,%eax
+  103083:	89 fa                	mov    %edi,%edx
+  103085:	89 e9                	mov    %ebp,%ecx
+  103087:	09 d8                	or     %ebx,%eax
+  103089:	d3 e6                	shl    %cl,%esi
+  10308b:	f7 74 24 08          	divl   0x8(%esp)
+  10308f:	89 d3                	mov    %edx,%ebx
+  103091:	f7 64 24 0c          	mull   0xc(%esp)
+  103095:	89 c7                	mov    %eax,%edi
+  103097:	89 d1                	mov    %edx,%ecx
+  103099:	39 d3                	cmp    %edx,%ebx
+  10309b:	72 06                	jb     1030a3 <__umoddi3+0x103>
+  10309d:	75 10                	jne    1030af <__umoddi3+0x10f>
+  10309f:	39 c6                	cmp    %eax,%esi
+  1030a1:	73 0c                	jae    1030af <__umoddi3+0x10f>
+  1030a3:	2b 44 24 0c          	sub    0xc(%esp),%eax
+  1030a7:	1b 54 24 08          	sbb    0x8(%esp),%edx
+  1030ab:	89 d1                	mov    %edx,%ecx
+  1030ad:	89 c7                	mov    %eax,%edi
+  1030af:	89 f2                	mov    %esi,%edx
+  1030b1:	29 fa                	sub    %edi,%edx
+  1030b3:	19 cb                	sbb    %ecx,%ebx
+  1030b5:	0f b6 4c 24 04       	movzbl 0x4(%esp),%ecx
+  1030ba:	89 d8                	mov    %ebx,%eax
+  1030bc:	d3 e0                	shl    %cl,%eax
+  1030be:	89 e9                	mov    %ebp,%ecx
+  1030c0:	d3 ea                	shr    %cl,%edx
+  1030c2:	d3 eb                	shr    %cl,%ebx
+  1030c4:	09 d0                	or     %edx,%eax
+  1030c6:	89 da                	mov    %ebx,%edx
+  1030c8:	83 c4 1c             	add    $0x1c,%esp
+  1030cb:	5b                   	pop    %ebx
+  1030cc:	5e                   	pop    %esi
+  1030cd:	5f                   	pop    %edi
+  1030ce:	5d                   	pop    %ebp
+  1030cf:	c3                   	ret    
+  1030d0:	89 da                	mov    %ebx,%edx
+  1030d2:	89 f1                	mov    %esi,%ecx
+  1030d4:	29 f9                	sub    %edi,%ecx
+  1030d6:	19 c2                	sbb    %eax,%edx
+  1030d8:	89 c8                	mov    %ecx,%eax
+  1030da:	e9 2b ff ff ff       	jmp    10300a <__umoddi3+0x6a>

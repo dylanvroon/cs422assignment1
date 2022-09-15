@@ -35,8 +35,13 @@ void pmem_init(unsigned int mbi_addr)
      *       divided by the page size.
      */
     pmm_table_length = get_size();
-    highest_phy_address = get_mms(pmm_table_length - 1) + get_mml(pmm_table_length - 1);
-    nps = highest_phy_address/PAGESIZE + ((highest_phy_address % PAGESIZE) != 0); 
+    highest_phy_address = 0;
+    for (unsigned int i = 0; i < get_size(); i++) {
+        if (get_mms(i) + get_mml(i) > highest_phy_address) {
+            highest_phy_address = get_mms(i) + get_mml(i);
+        }
+    }
+    nps = highest_phy_address/PAGESIZE + ((highest_phy_address % PAGESIZE) != 0); // TODO: Do we need to do ceiling instead of just raw division? 
     set_nps(nps);  // Setting the value computed above to NUM_PAGES.
 
     /**
@@ -82,6 +87,8 @@ void pmem_init(unsigned int mbi_addr)
             range_start = get_mms(pmm_table_index);
             range_end = range_start + get_mml(pmm_table_index);
             potential_page_start = range_start/PAGESIZE + ((range_start % PAGESIZE) != 0); // Ceiling so that don't deal with partial pages
+            dprintf("range_start: 0x%x\n", range_start);
+            dprintf("potential start page: 0x%x\n", potential_page_start);
 
             // Loop through all full pages contained in current segment
             while ((potential_page_start < nps - 1) && (((potential_page_start + 1) * PAGESIZE) <= range_end)) {
