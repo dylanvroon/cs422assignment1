@@ -54,8 +54,21 @@ int MATOp_test1()
  */
 int MATOp_test_own()
 {
+    int page_indices[] = {0,0,0,0,0,0,0,0,0,0};
+    for (int i = 0; i < 10; i ++) {
+        page_indices[i] = palloc();
+        if (page_indices[i] < VM_USERLO_PI || VM_USERHI_PI <= page_indices[i]) {
+            dprintf("test 2.1 failed: (%d < VM_USERLO_PI || VM_USERHI_PI <= %d)\n", page_indices[i], page_indices[i]);
+            dprintf("test page index: 0x%x\n", page_indices[i]);
+            pfree(page_indices[i]);
+            return 1;
+        }
+    }
+    for (int i = 0; i < 10; i++) {
+        pfree(page_indices[i]);
+    }
     // TODO (optional)
-    // dprintf("own test passed.\n");
+    dprintf("own test 2 passed.\n");
     return 0;
 }
 

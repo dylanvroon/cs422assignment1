@@ -70,9 +70,11 @@ unsigned int palloc()
 void pfree(unsigned int pfree_index)
 {
     // Add to cache 
-    for (unsigned int i = 0; i < CACHE_LEN; i++) {
-        if (cache[i] == UINT_MAX) {
-            cache[i] = pfree_index;
+    if (at_is_norm(pfree_index) == 1) {
+        for (unsigned int i = 0; i < CACHE_LEN; i++) {
+            if (cache[i] == UINT_MAX) {
+                cache[i] = pfree_index;
+            }
         }
     }
     at_set_allocated(pfree_index, 0);
